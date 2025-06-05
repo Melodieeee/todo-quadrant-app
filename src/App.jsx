@@ -84,7 +84,7 @@ const App = () => {
               className="w-3/12 bg-white rounded-lg p-4 shadow overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Inbox</h2>
+                <h2 className="text-2xl font-bold">Todo List</h2>
                 <button
                   onClick={addTask}
                   className="bg-blue-500 text-white px-3 py-1 rounded"
@@ -111,10 +111,10 @@ const App = () => {
         {/* Right quadrants */}
         <div className="w-9/12 grid grid-cols-2 grid-rows-2 gap-4">
           {[
-            { id: "IN", title: "重要但不緊急", color: "bg-blue-100" },
-            { id: "IU", title: "緊急且重要", color: "bg-red-100" },
-            { id: "NN", title: "不重要也不緊急", color: "bg-green-100" },
-            { id: "NU", title: "緊急但不重要", color: "bg-yellow-100" },
+            { id: "IN", title: "重要&不緊急", color: "bg-blue-100" },
+            { id: "IU", title: "緊急&重要", color: "bg-red-100" },
+            { id: "NN", title: "不重要&不緊急", color: "bg-green-100" },
+            { id: "NU", title: "緊急&不重要", color: "bg-yellow-100" },
           ].map((q) => (
             <Quadrant
               key={q.id}
