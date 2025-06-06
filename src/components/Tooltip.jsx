@@ -26,7 +26,6 @@ const Tooltip = ({ content, children }) => {
         className={`absolute z-10 px-3 py-2 text-sm rounded shadow-lg transition-opacity duration-200
         ${show ? "opacity-100" : "opacity-0 pointer-events-none"}
         ${position === "right" ? "left-full ml-2 top-0" : "right-full mr-2 top-0"}
-
         bg-[#fff7e6] text-[#5c3a1e]`}
         style={{
           whiteSpace: "normal",

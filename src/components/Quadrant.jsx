@@ -20,7 +20,7 @@ const Quadrant = ({
 
   return (
     <div
-      className={`rounded-lg p-4 shadow ${bgColor} flex flex-col overflow-hidden`}
+      className={`rounded-lg p-4 shadow ${bgColor} flex flex-col overflow-hidden h-full`}
     >
       <div className="flex justify-between items-center mb-2">
         <Tooltip content={hint}>

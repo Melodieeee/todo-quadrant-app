@@ -45,7 +45,7 @@ const ResizableSplitPane = ({ left, right }) => {
         style={{
           width: "6px",
           cursor: "col-resize",
-          backgroundColor: "#ddd",
+          backgroundColor: "transparent",
           zIndex: 10,
         }}
       />

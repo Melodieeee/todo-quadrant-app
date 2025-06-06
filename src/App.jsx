@@ -5,10 +5,14 @@ import Quadrant from "./components/Quadrant";
 import { v4 as uuidv4 } from "uuid";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import ResizableSplitPane from "./components/ResizableSplitPane";
+import QuadrantGrid from "./components/QuadrantGrid";
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [sortStates, setSortStates] = useState({});
+  const [verticalSplit, setVerticalSplit] = useState([50, 50]);
+  const [topSplit, setTopSplit] = useState([50, 50]);
+  const [bottomSplit, setBottomSplit] = useState([50, 50]);
 
   const addTask = () => {
     const newTask = {
@@ -75,147 +79,78 @@ const App = () => {
     setSortStates((prev) => ({ ...prev, [listId]: !prev[listId] }));
   };
 
-  const left = (
-    
-      <Droppable droppableId="inbox">
-        {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className="bg-white rounded-lg p-4 shadow overflow-y-auto"
-            style={{ height: "100%" }}
-          >
-            <div className="flex justify-between items-center my-4">
-              <h2 className="text-2xl font-bold">Todo List</h2>
-              <button
-                onClick={addTask}
-                className="bg-blue-500 text-white px-3 py-1 rounded"
-              >
-                +
-              </button>
-            </div>
-            {tasks
-              .filter((t) => t.list === "inbox")
-              .map((task, index) => (
-                <Task
-                  key={task.id}
-                  task={task}
-                  index={index}
-                  updateTask={updateTask}
-                  deleteTask={deleteTask}
-                />
-              ))}
-            {provided.placeholder}
+  const quadrantMeta = {
+    IN: { title: "重要&不緊急", hint: "制定計劃", bgColor: "bg-blue-100" },
+    IU: { title: "緊急&重要", hint: "優先解決", bgColor: "bg-red-100" },
+    NU: { title: "緊急&不重要", hint: "給別人做", bgColor: "bg-yellow-100" },
+    NN: { title: "不重要&不緊急", hint: "有空再做", bgColor: "bg-green-100" },
+  };
+
+  const renderQuadrant = (id) => {
+    const meta = quadrantMeta[id];
+    return (
+      <Quadrant
+        id={id}
+        title={meta.title}
+        hint={meta.hint}
+        bgColor={meta.bgColor}
+        tasks={tasks}
+        updateTask={updateTask}
+        deleteTask={deleteTask}
+        onSort={() => handleSortByQuadrantTime(id)}
+      />
+    );
+  };
+
+  const leftPanel = (
+    <Droppable droppableId="inbox">
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className="bg-white rounded-lg p-4 shadow overflow-y-auto"
+          style={{ height: "100%" }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Todo List</h2>
+            <button
+              onClick={addTask}
+              className="text-[#fff7e6] bg-[#5c3a1e] hover:bg-[#935629] px-3 py-1 rounded"
+            >
+              +
+            </button>
           </div>
-        )}
-      </Droppable>
-   
+          {tasks
+            .filter((t) => t.list === "inbox")
+            .map((task, index) => (
+              <Task
+                key={task.id}
+                task={task}
+                index={index}
+                updateTask={updateTask}
+                deleteTask={deleteTask}
+              />
+            ))}
+          {provided.placeholder}
+        </div>
+      )}
+    </Droppable>
   );
 
-  const right = (
-    <div
-      className="grid grid-cols-2 grid-rows-2 gap-4 p-4"
-      style={{ height: "100%" }}
-    >
-      {[
-        {
-          id: "IN",
-          title: "重要&不緊急",
-          hint: "制定計劃",
-          color: "bg-blue-100",
-        },
-        { id: "IU", title: "緊急&重要", hint: "優先解決", color: "bg-red-100" },
-        {
-          id: "NN",
-          title: "不重要&不緊急",
-          hint: "有空再說",
-          color: "bg-green-100",
-        },
-        {
-          id: "NU",
-          title: "緊急&不重要",
-          hint: "給別人做給別人做給別人做給別人做給別人做",
-          color: "bg-yellow-100",
-        },
-      ].map((q) => (
-        <Quadrant
-          key={q.id}
-          id={q.id}
-          title={q.title}
-          hint={q.hint}
-          bgColor={q.color}
-          tasks={tasks}
-          updateTask={updateTask}
-          deleteTask={deleteTask}
-          onSort={() => handleSortByQuadrantTime(q.id)}
-        />
-      ))}
+  const rightPanel = (
+    <div className="w-full h-full">
+      <QuadrantGrid renderQuadrant={renderQuadrant} />
     </div>
   );
 
   return (
-    // <DragDropContext onDragEnd={onDragEnd}>
-    //   <div className="flex h-screen p-4 gap-4 bg-gray-100">
-    //     {/* Left task inbox */}
-    //     <Droppable droppableId="inbox">
-    //       {(provided) => (
-    //         <div
-    //           ref={provided.innerRef}
-    //           {...provided.droppableProps}
-    //           className="w-3/12 bg-white rounded-lg p-4 shadow overflow-y-auto"
-    //         >
-    //           <div className="flex justify-between items-center mb-4">
-    //             <h2 className="text-2xl font-bold">Todo List</h2>
-    //             <button
-    //               onClick={addTask}
-    //               className="bg-blue-500 text-white px-3 py-1 rounded"
-    //             >
-    //               +
-    //             </button>
-    //           </div>
-    //           {tasks
-    //             .filter((t) => t.list === "inbox")
-    //             .map((task, index) => (
-    //               <Task
-    //                 key={task.id}
-    //                 task={task}
-    //                 index={index}
-    //                 updateTask={updateTask}
-    //                 deleteTask={deleteTask}
-    //               />
-    //             ))}
-    //           {provided.placeholder}
-    //         </div>
-    //       )}
-    //     </Droppable>
-
-    //     {/* Right quadrants */}
-    //     <div className="w-9/12 grid grid-cols-2 grid-rows-2 gap-4">
-    //       {[
-    //         { id: "IN", title: "重要&不緊急",hint: "制定計劃", color: "bg-blue-100" },
-    //         { id: "IU", title: "緊急&重要", hint: "優先解決", color: "bg-red-100" },
-    //         { id: "NN", title: "不重要&不緊急", hint: "有空再說", color: "bg-green-100" },
-    //         { id: "NU", title: "緊急&不重要", hint: "給別人做給別人做給別人做給別人做給別人做", color: "bg-yellow-100" },
-    //       ].map((q) => (
-    //         <Quadrant
-    //           key={q.id}
-    //           id={q.id}
-    //           title={q.title}
-    //           hint={q.hint}
-    //           bgColor={q.color}
-    //           tasks={tasks}
-    //           updateTask={updateTask}
-    //           deleteTask={deleteTask}
-    //           onSort={() => handleSortByQuadrantTime(q.id)}
-    //         />
-    //       ))}
-    //     </div>
-    //   </div>
-    // </DragDropContext>
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex h-screen p-4 gap-4 bg-gray-100">
-      <ResizableSplitPane left={left} right={right} /></div>
-    </DragDropContext>
+    <div className="bg-gray-100 h-full w-screen m-0 p-6">
+      <DragDropContext onDragEnd={onDragEnd}>
+        
+          <ResizableSplitPane left={leftPanel} right={rightPanel} />
+        
+      </DragDropContext>
+    </div>
   );
 };
 
