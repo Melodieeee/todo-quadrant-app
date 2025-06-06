@@ -2,16 +2,10 @@
 import React, { useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Pencil, Trash2 } from "lucide-react";
-import {
-  format,
-  differenceInMinutes,
-  differenceInHours,
-  differenceInDays,
-  differenceInYears,
-  formatDistanceToNow,
-  parseISO,
-} from "date-fns";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import Tooltip from "./Tooltip";
+import TooltipToggle from "./TooltipToggle";
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const [editing, setEditing] = useState(false);
@@ -30,139 +24,179 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
     setEditing(false);
   };
 
-  const createdAtDate =
+  const createdAt =
     typeof task.createdAt === "string"
       ? parseISO(task.createdAt)
       : task.createdAt;
-
   const dueDate = task.dueDate
     ? typeof task.dueDate === "string"
       ? parseISO(task.dueDate)
       : task.dueDate
     : null;
 
-  const formatRelativeTime = (fromDate, toDate = new Date()) => {
-    const minutes = differenceInMinutes(toDate, fromDate);
-    if (minutes < 60) return `${minutes} 分鐘前`;
-
-    const hours = differenceInHours(toDate, fromDate);
-    if (hours < 24) return `${hours} 小時前`;
-
-    const days = differenceInDays(toDate, fromDate);
-    if (days < 365) return `${days} 天前`;
-
-    const years = differenceInYears(toDate, fromDate);
-    return `${years} 年前`;
-  };
-
-  const formatTimeUntil = (futureDate, now = new Date()) => {
-    const minutes = differenceInMinutes(futureDate, now);
-    if (minutes < 0) return `已過期 ${formatRelativeTime(futureDate, now)}`;
-
-    if (minutes < 60) return `還有 ${minutes} 分鐘`;
-    const hours = differenceInHours(futureDate, now);
-    if (hours < 24) return `還有 ${hours} 小時`;
-    const days = differenceInDays(futureDate, now);
-    if (days < 365) return `還有 ${days} 天`;
-    const years = differenceInYears(futureDate, now);
-    return `還有 ${years} 年`;
-  };
-
   return (
     <Draggable draggableId={task.id} index={index}>
-      {(provided) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          onDoubleClick={() => setEditing(true)}
-          className={`border p-2 mb-2 rounded bg-white shadow ${
-            task.completed ? "opacity-50 line-through" : ""
-          }`}
-        >
-          {editing ? (
-            <div>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="輸入任務標題..."
-                className="w-full mb-1 border rounded px-2 py-1"
-              />
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="輸入描述內容..."
-                className="w-full mb-1 border rounded px-2 py-1"
-              />
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  到期時間
-                </label>
-                <input
-                  type="datetime-local"
-                  value={dueDateState}
-                  onChange={(e) => setDueDateState(e.target.value)}
-                  className="w-full mb-1 border rounded px-2 py-1"
-                />
-              </div>
-              <div className="flex justify-between mt-2">
-                <button
-                  onClick={handleSave}
-                  className="bg-green-500 text-white px-2 py-1 rounded"
+      {(provided, snapshot) =>
+        snapshot.isDragging ? (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            className="border p-3 mb-2 rounded bg-white shadow"
+          >
+            {/* 這裡可簡化為 task.title */}
+            {task.title}
+          </div>
+        ) : (
+          <motion.div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            className={`border p-3 mb-2 rounded bg-white shadow ${
+              task.completed ? "opacity-50 line-through" : ""
+            }`}
+            onDoubleClick={() => setEditing(true)}
+            layout
+          >
+            <AnimatePresence mode="wait">
+              {editing ? (
+                <motion.div
+                  key="edit"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  onDoubleClick={(e) => {
+                    console.log("double click on:", e.target.tagName);
+                    const tag = e.target.tagName.toLowerCase();
+                    if (
+                      !["input", "textarea", "button", "svg", "path"].includes(
+                        tag
+                      )
+                    ) {
+                      handleSave();
+                      e.stopPropagation(); // 防止冒泡到父元素
+                    }
+                  }}
                 >
-                  儲存
-                </button>
-                <button
-                  onClick={() => setEditing(false)}
-                  className="bg-gray-300 text-black px-2 py-1 rounded"
+                  <label className="block text-sm font-semibold mb-1">
+                    標題
+                  </label>
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full mb-2 border rounded px-2 py-1"
+                    placeholder="輸入任務標題"
+                  />
+                  <label className="block text-sm font-semibold mb-1">
+                    描述
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full mb-2 border rounded px-2 py-1"
+                    placeholder="輸入任務描述"
+                  />
+                  <label className="block text-sm font-semibold mb-1">
+                    到期時間
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={dueDateState}
+                    onChange={(e) => setDueDateState(e.target.value)}
+                    className="w-full mb-2 border rounded px-2 py-1"
+                  />
+                  <div className="flex justify-between mt-2">
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }}
+                      onClick={handleSave}
+                      className="bg-green-500 text-white px-3 py-1 rounded"
+                    >
+                      儲存
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => setEditing(false)}
+                      className="bg-gray-300 text-black px-3 py-1 rounded"
+                    >
+                      取消
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="view"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  取消
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="flex justify-between items-center">
-                <h4 className="font-semibold">{task.title}</h4>
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={(e) =>
-                    updateTask(task.id, { completed: e.target.checked })
-                  }
-                />
-              </div>
-              {task.description && (
-                <p className="text-sm text-gray-700">{task.description}</p>
-              )}
-              <p className="text-xs text-gray-500 mt-1">
-                加入時間：{formatRelativeTime(createdAtDate)}
-              </p>
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-semibold text-base">{task.title}</h4>
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={(e) =>
+                        updateTask(task.id, { completed: e.target.checked })
+                      }
+                    />
+                  </div>
+                  {task.description && (
+                    <p className="text-sm text-gray-700 mt-1">
+                      {task.description}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Join：
+                    <TooltipToggle
+                      defaultValue={formatDistanceToNow(createdAt, {
+                        addSuffix: true,
+                      })}
+                      tooltip={createdAt.toLocaleString()}
+                    />
+                  </p>
 
-              {dueDate && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Due: {format(dueDate, "yyyy/MM/dd HH:mm")}&nbsp;&nbsp;
-                  {formatTimeUntil(dueDate)}
-                </p>
+                  {dueDate && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Due：
+                      <TooltipToggle
+                        defaultValue={formatDistanceToNow(dueDate, {
+                          addSuffix: true,
+                        })}
+                        tooltip={dueDate.toLocaleString()}
+                      />
+                    </p>
+                  )}
+                  <div className="flex justify-end gap-2 mt-2">
+                    <motion.button
+                      onClick={() => setEditing(true)}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Pencil
+                        size={18}
+                        className="text-blue-500 hover:text-blue-700"
+                      />
+                    </motion.button>
+                    <motion.button
+                      onClick={() => deleteTask(task.id)}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Trash2
+                        size={18}
+                        className="text-red-500 hover:text-red-700"
+                      />
+                    </motion.button>
+                  </div>
+                </motion.div>
               )}
-              <div className="flex justify-end gap-2 mt-2">
-                <button
-                  onClick={() => setEditing(true)}
-                  className="p-2 rounded hover:bg-blue-100 active:scale-95 transition-transform"
-                >
-                  <Pencil size={16} className="text-blue-600" />
-                </button>
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="p-2 rounded hover:bg-red-100 active:scale-95 transition-transform"
-                >
-                  <Trash2 size={16} className="text-red-600" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+            </AnimatePresence>
+          </motion.div>
+        )
+      }
     </Draggable>
   );
 };

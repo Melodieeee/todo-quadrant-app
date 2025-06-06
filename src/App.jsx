@@ -111,15 +111,16 @@ const App = () => {
         {/* Right quadrants */}
         <div className="w-9/12 grid grid-cols-2 grid-rows-2 gap-4">
           {[
-            { id: "IN", title: "重要&不緊急", color: "bg-blue-100" },
-            { id: "IU", title: "緊急&重要", color: "bg-red-100" },
-            { id: "NN", title: "不重要&不緊急", color: "bg-green-100" },
-            { id: "NU", title: "緊急&不重要", color: "bg-yellow-100" },
+            { id: "IN", title: "重要&不緊急",hint: "制定計劃", color: "bg-blue-100" },
+            { id: "IU", title: "緊急&重要", hint: "優先解決", color: "bg-red-100" },
+            { id: "NN", title: "不重要&不緊急", hint: "有空再說", color: "bg-green-100" },
+            { id: "NU", title: "緊急&不重要", hint: "給別人做給別人做給別人做給別人做給別人做", color: "bg-yellow-100" },
           ].map((q) => (
             <Quadrant
               key={q.id}
               id={q.id}
               title={q.title}
+              hint={q.hint}
               bgColor={q.color}
               tasks={tasks}
               updateTask={updateTask}
