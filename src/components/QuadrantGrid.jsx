@@ -33,38 +33,75 @@ const Split = ({ direction = "horizontal", children, sizes, setSizes }) => {
       className="flex w-full h-full"
       style={{ flexDirection: isHorizontal ? "column" : "row" }}
     >
-      <div className="h-full" style={{ flex: firstSize, overflow: "hidden" }}>{first}</div>
       <div
+        className="h-full"
+        style={{ flex: firstSize, overflow: "hidden", position: "relative" }}
+      >
+        {first}
+      </div>
+      <div
+        title="Drag to resize quadrants"
         onMouseDown={onMouseDown}
         style={{
           width: isHorizontal ? "100%" : "6px",
           height: isHorizontal ? "6px" : "100%",
-          backgroundColor: "transparent",
           cursor: isHorizontal ? "row-resize" : "col-resize",
           zIndex: 10,
+          backgroundColor: "transparent",
+          borderRadius: "3px",
+          alignSelf: "center",
         }}
       />
-      <div className="h-full" style={{ flex: secondSize, overflow: "hidden" }}>{second}</div>
+      <div
+        className="h-full"
+        style={{ flex: secondSize, overflow: "hidden", position: "relative" }}
+      >
+        {second}
+      </div>
     </div>
   );
 };
 
 const QuadrantGrid = ({ renderQuadrant }) => {
-  const [verticalSplit, setVerticalSplit] = useState([0.5, 0.5]); // 上下比
-  const [topSplit, setTopSplit] = useState([0.5, 0.5]); // 上面左右
-  const [bottomSplit, setBottomSplit] = useState([0.5, 0.5]); // 下面左右
+  const [verticalSplit, setVerticalSplit] = useState([0.5, 0.5]);
+  const [topSplit, setTopSplit] = useState([0.5, 0.5]);
+  const [bottomSplit, setBottomSplit] = useState([0.5, 0.5]);
+  const [fullscreenQuadrant, setFullscreenQuadrant] = useState(null);
+
+  const handleDoubleClick = (quadrant) => {
+    setFullscreenQuadrant((prev) => (prev === quadrant ? null : quadrant));
+  };
+
+  const renderWithDoubleClick = (quadrantKey) => (
+    <div
+      style={{ width: "100%", height: "100%" }}
+      onDoubleClick={() => handleDoubleClick(quadrantKey)}
+    >
+      {renderQuadrant(quadrantKey)}
+    </div>
+  );
+
+  if (fullscreenQuadrant) {
+    return (
+      <div style={{ width: "100%", height: "100%" }}>
+        {renderWithDoubleClick(fullscreenQuadrant)}
+      </div>
+    );
+  }
 
   return (
-    <Split direction="horizontal" sizes={verticalSplit} setSizes={setVerticalSplit}>
-      {/* 上半部：topRight, topLeft */}
+    <Split
+      direction="horizontal"
+      sizes={verticalSplit}
+      setSizes={setVerticalSplit}
+    >
       <Split direction="vertical" sizes={topSplit} setSizes={setTopSplit}>
-        {renderQuadrant("IN")} 
-        {renderQuadrant("IU")}        
+        {renderWithDoubleClick("IN")}
+        {renderWithDoubleClick("IU")}
       </Split>
-      {/* 下半部：bottomRight bottomLeft */}
       <Split direction="vertical" sizes={bottomSplit} setSizes={setBottomSplit}>
-        {renderQuadrant("NN")}
-        {renderQuadrant("NU")}
+        {renderWithDoubleClick("NN")}
+        {renderWithDoubleClick("NU")}
       </Split>
     </Split>
   );
