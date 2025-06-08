@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const TooltipToggle = ({ defaultValue, tooltip }) => {
+const TooltipToggle = ({ defaultValue, tooltip, className = "" }) => {
   const [toggled, setToggled] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [position, setPosition] = useState("top");
@@ -33,7 +33,7 @@ const TooltipToggle = ({ defaultValue, tooltip }) => {
   return (
     <span
       ref={wrapperRef}
-      className="relative inline-block cursor-pointer"
+      className={`relative inline-block cursor-pointer ${className}`}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

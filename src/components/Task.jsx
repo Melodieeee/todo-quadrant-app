@@ -50,9 +50,19 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             className={`no-expand border p-3 mb-2 rounded bg-white shadow ${
-              task.completed ? "opacity-50 line-through" : ""
-            }`}
-            onDoubleClick={() => setEditing(true)}
+              task.completed ? "opacity-50" : ""}
+            `}
+            onDoubleClick={(e) => {
+              const tag = e.target.tagName.toLowerCase();
+              if (
+                !["input", "textarea", "button", "svg", "path"].includes(
+                  tag
+                )
+              ) {
+                setEditing(true)
+                e.stopPropagation();
+              }
+            }}
             layout
           >
             <AnimatePresence mode="wait">
@@ -64,7 +74,6 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
                   onDoubleClick={(e) => {
-                    console.log("double click on:", e.target.tagName);
                     const tag = e.target.tagName.toLowerCase();
                     if (
                       !["input", "textarea", "button", "svg", "path"].includes(
@@ -72,7 +81,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       )
                     ) {
                       handleSave();
-                      e.stopPropagation(); // 防止冒泡到父元素
+                      e.stopPropagation();
                     }
                   }}
                 >
@@ -108,7 +117,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.05 }}
                       onClick={handleSave}
-                      className="bg-green-500 text-white px-3 py-1 rounded"
+                      className="bg-green-400 text-white px-3 py-1 rounded"
                     >
                       儲存
                     </motion.button>
@@ -131,7 +140,10 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                   transition={{ duration: 0.2 }}
                 >
                   <div className="flex justify-between items-center">
-                    <h4 className="font-semibold text-base">{task.title}</h4>
+                    <h4 className={`font-semibold text-base 
+                    ${ task.completed ? "line-through" : ""}`}>
+                        {task.title}
+                    </h4>
                     <input
                       type="checkbox"
                       checked={task.completed}
@@ -141,28 +153,36 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     />
                   </div>
                   {task.description && (
-                    <p className="text-sm text-gray-700 mt-1">
+                    <p className={`text-sm text-gray-700 mt-1
+                      ${ task.completed ? "line-through" : ""}
+                    `}>
                       {task.description}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className={`text-xs text-gray-500 mt-1
+                    ${ task.completed ? "line-through" : ""}
+                    `}>
                     Join：
                     <TooltipToggle
                       defaultValue={formatDistanceToNow(createdAt, {
                         addSuffix: true,
                       })}
                       tooltip={createdAt.toLocaleString()}
+                      className={task.completed ? "line-through text-gray-500" : ""}
                     />
                   </p>
 
                   {dueDate && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className={`text-xs text-gray-500 mt-1
+                      ${ task.completed ? "line-through" : ""}
+                    `}>
                       Due：
                       <TooltipToggle
                         defaultValue={formatDistanceToNow(dueDate, {
                           addSuffix: true,
                         })}
                         tooltip={dueDate.toLocaleString()}
+                        className={task.completed ? "line-through text-gray-500" : ""}
                       />
                     </p>
                   )}

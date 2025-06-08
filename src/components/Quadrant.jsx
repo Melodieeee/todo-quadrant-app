@@ -1,4 +1,3 @@
-// Quadrant.jsx
 import React from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import Task from "./Task";

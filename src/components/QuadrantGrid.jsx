@@ -104,6 +104,8 @@ const QuadrantGrid = ({ renderQuadrant }) => {
   const getQuadrantComponent = (id, component) => (
     <div
       onDoubleClick={(e) => {
+        e.preventDefault();
+        window.getSelection()?.removeAllRanges();
         if (e.target.closest(".no-expand")) {
           return;
         }
