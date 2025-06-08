@@ -28,7 +28,7 @@ const Quadrant = ({
         </Tooltip>
         <button
           onClick={onSort}
-          className="text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded"
+          className="no-expand text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded"
         >
           排序
         </button>

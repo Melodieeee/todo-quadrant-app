@@ -40,19 +40,22 @@ const ResizableSplitPane = ({ left, right }) => {
     setTimeout(() => setShowTip(false), 1200);
   };
 
-  const handleDoubleClickLeft = () => {
+  const handleDoubleClickLeft = (e) => {
+    if (e.target.closest(".no-expand")) {
+      return;
+    }
+  
     const screenWidth = window.innerWidth;
-
+  
     if (leftWidth >= screenWidth - 30) {
-      // 目前接近全螢幕 → 切換為一般寬度
       setLeftWidth(300);
       setIsCollapsed(false);
     } else {
-      // 目前非全螢幕 → 切換為全螢幕
       setLeftWidth(screenWidth);
       setIsCollapsed("right");
     }
   };
+  
 
   useEffect(() => {
     window.addEventListener("mousemove", onMouseMove);
@@ -87,7 +90,7 @@ const ResizableSplitPane = ({ left, right }) => {
         //onClick={isCollapsed ? handleExpand : null}
         style={{
           width:  "6px",
-          height: isCollapsed ? "40px" : "100%",
+          height: isCollapsed ? "20%" : "100%",
           cursor:  "col-resize",
           backgroundColor: isCollapsed ? "#bbb" : "transparent",
           zIndex: 10,

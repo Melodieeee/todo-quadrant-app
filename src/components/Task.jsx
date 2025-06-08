@@ -1,10 +1,8 @@
-// Task.jsx
 import React, { useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Pencil, Trash2 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import Tooltip from "./Tooltip";
 import TooltipToggle from "./TooltipToggle";
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
@@ -42,9 +40,8 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className="border p-3 mb-2 rounded bg-white shadow"
+            className="no-expand border p-3 mb-2 rounded bg-white shadow"
           >
-            {/* 這裡可簡化為 task.title */}
             {task.title}
           </div>
         ) : (
@@ -52,7 +49,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`border p-3 mb-2 rounded bg-white shadow ${
+            className={`no-expand border p-3 mb-2 rounded bg-white shadow ${
               task.completed ? "opacity-50 line-through" : ""
             }`}
             onDoubleClick={() => setEditing(true)}
