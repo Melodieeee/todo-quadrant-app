@@ -1,5 +1,4 @@
-// App.jsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Task from "./components/Task";
 import Quadrant from "./components/Quadrant";
 import { v4 as uuidv4 } from "uuid";
@@ -9,10 +8,6 @@ import QuadrantGrid from "./components/QuadrantGrid";
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
-  const [sortStates, setSortStates] = useState({});
-  const [verticalSplit, setVerticalSplit] = useState([50, 50]);
-  const [topSplit, setTopSplit] = useState([50, 50]);
-  const [bottomSplit, setBottomSplit] = useState([50, 50]);
 
   const addTask = () => {
     const newTask = {
@@ -26,6 +21,7 @@ const App = () => {
       completed: false,
       list: "inbox",
       movedToQuadrantAt: null,
+      manualOrderIndex: tasks.length,
     };
     setTasks((prev) => [...prev, newTask]);
   };
@@ -42,12 +38,24 @@ const App = () => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
+  const sortOptionsRef = useRef({
+    IN: null,
+    IU: null,
+    NU: null,
+    NN: null,
+  });
+  const [sortOptions, _setSortOptions] = useState(sortOptionsRef.current);
+  const setSortOptions = (newOptions) => {
+    sortOptionsRef.current = newOptions;
+    _setSortOptions(newOptions);
+  };
+
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
 
-    const sourceId = source.droppableId;
     const destId = destination.droppableId;
+    const sourceId = source.droppableId;
 
     const draggedTask = tasks.find((t) => t.id === draggableId);
     if (!draggedTask) return;
@@ -66,17 +74,22 @@ const App = () => {
 
     sameListTasks.splice(destination.index, 0, updatedTask);
 
-    setTasks([...otherTasks, ...sameListTasks]);
-  };
+    const reindexedTasks = sameListTasks.map((t, i) => ({
+      ...t,
+      manualOrderIndex: i,
+    }));
 
-  const handleSortByQuadrantTime = (listId) => {
-    const quadrantTasks = tasks.filter((t) => t.list === listId);
-    const sorted = [...quadrantTasks].sort(
-      (a, b) => new Date(b.movedToQuadrantAt) - new Date(a.movedToQuadrantAt)
-    );
-    const otherTasks = tasks.filter((t) => t.list !== listId);
-    setTasks([...otherTasks, ...sorted]);
-    setSortStates((prev) => ({ ...prev, [listId]: !prev[listId] }));
+    setTasks([...otherTasks, ...reindexedTasks]);
+
+    if (sourceId !== destId || source.index !== destination.index) {
+      setSortOptions({
+        ...sortOptionsRef.current,
+        [sourceId]: null,
+        [destId]: null,
+      });
+    }
+    console.log(tasks);
+    console.log(sortOptionsRef.current);
   };
 
   const quadrantMeta = {
@@ -97,7 +110,10 @@ const App = () => {
         tasks={tasks}
         updateTask={updateTask}
         deleteTask={deleteTask}
-        onSort={() => handleSortByQuadrantTime(id)}
+        sortOption={sortOptions[id]}
+        setSortOption={(option) =>
+          setSortOptions({ ...sortOptionsRef.current, [id]: option })
+        }
       />
     );
   };
@@ -146,9 +162,7 @@ const App = () => {
   return (
     <div className="bg-gray-100 h-full w-screen m-0 p-6">
       <DragDropContext onDragEnd={onDragEnd}>
-        
-          <ResizableSplitPane left={leftPanel} right={rightPanel} />
-        
+        <ResizableSplitPane left={leftPanel} right={rightPanel} />
       </DragDropContext>
     </div>
   );
