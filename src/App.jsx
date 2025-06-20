@@ -216,7 +216,7 @@ const App = () => {
   );
 
   return (
-    <div className="bg-gray-100 h-full w-screen m-0 p-6">
+    <div className="bg-gray-100 h-screen w-screen m-0 p-6 overflow-hidden">
       <DragDropContext onDragEnd={onDragEnd}>
         <ResizableSplitPane left={leftPanel} right={rightPanel} />
       </DragDropContext>

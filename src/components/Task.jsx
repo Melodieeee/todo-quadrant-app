@@ -50,16 +50,14 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             className={`no-expand border p-3 mb-2 rounded bg-white shadow ${
-              task.completed ? "opacity-50" : ""}
-            `}
+              task.completed ? "opacity-50" : ""
+            }`}
             onDoubleClick={(e) => {
               const tag = e.target.tagName.toLowerCase();
               if (
-                !["input", "textarea", "button", "svg", "path"].includes(
-                  tag
-                )
+                !["input", "textarea", "button", "svg", "path"].includes(tag)
               ) {
-                setEditing(true)
+                setEditing(true);
                 e.stopPropagation();
               }
             }}
@@ -85,27 +83,21 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     }
                   }}
                 >
-                  <label className="block text-sm font-semibold mb-1">
-                    標題
-                  </label>
+                  <label className="block text-sm font-semibold mb-1">標題</label>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
                     placeholder="輸入任務標題"
                   />
-                  <label className="block text-sm font-semibold mb-1">
-                    描述
-                  </label>
+                  <label className="block text-sm font-semibold mb-1">描述</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
                     placeholder="輸入任務描述"
                   />
-                  <label className="block text-sm font-semibold mb-1">
-                    到期時間
-                  </label>
+                  <label className="block text-sm font-semibold mb-1">到期時間</label>
                   <input
                     type="datetime-local"
                     value={dueDateState}
@@ -140,9 +132,12 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                   transition={{ duration: 0.2 }}
                 >
                   <div className="flex justify-between items-center">
-                    <h4 className={`font-semibold text-base 
-                    ${ task.completed ? "line-through" : ""}`}>
-                        {task.title}
+                    <h4
+                      className={`font-semibold text-base ${
+                        task.completed ? "line-through" : ""
+                      }`}
+                    >
+                      {task.title}
                     </h4>
                     <input
                       type="checkbox"
@@ -152,40 +147,53 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       }
                     />
                   </div>
+
                   {task.description && (
-                    <p className={`text-sm text-gray-700 mt-1
-                      ${ task.completed ? "line-through" : ""}
-                    `}>
+                    <div
+                      className={`text-sm text-gray-700 mt-1 ${
+                        task.completed ? "line-through" : ""
+                      }`}
+                    >
                       {task.description}
-                    </p>
+                    </div>
                   )}
-                  <p className={`text-xs text-gray-500 mt-1
-                    ${ task.completed ? "line-through" : ""}
-                    `}>
-                    Join：
+
+                  <div
+                    className={`text-xs text-gray-500 mt-1 ${
+                      task.completed ? "line-through" : ""
+                    }`}
+                  >
+                    <span>Join：</span>
                     <TooltipToggle
                       defaultValue={formatDistanceToNow(createdAt, {
                         addSuffix: true,
                       })}
                       tooltip={createdAt.toLocaleString()}
-                      className={task.completed ? "line-through text-gray-500" : ""}
+                      className={
+                        task.completed ? "line-through text-gray-500" : ""
+                      }
                     />
-                  </p>
+                  </div>
 
                   {dueDate && (
-                    <p className={`text-xs text-gray-500 mt-1
-                      ${ task.completed ? "line-through" : ""}
-                    `}>
-                      Due：
+                    <div
+                      className={`text-xs text-gray-500 mt-1 ${
+                        task.completed ? "line-through" : ""
+                      }`}
+                    >
+                      <span>Due：</span>
                       <TooltipToggle
                         defaultValue={formatDistanceToNow(dueDate, {
                           addSuffix: true,
                         })}
                         tooltip={dueDate.toLocaleString()}
-                        className={task.completed ? "line-through text-gray-500" : ""}
+                        className={
+                          task.completed ? "line-through text-gray-500" : ""
+                        }
                       />
-                    </p>
+                    </div>
                   )}
+
                   <div className="flex justify-end gap-2 mt-2">
                     <motion.button
                       onClick={() => setEditing(true)}
