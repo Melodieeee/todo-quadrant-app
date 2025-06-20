@@ -1,3 +1,4 @@
+// App.jsx
 import React, { useState, useRef } from "react";
 import Task from "./components/Task";
 import Quadrant from "./components/Quadrant";
@@ -8,6 +9,18 @@ import QuadrantGrid from "./components/QuadrantGrid";
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
+
+  const [sortOptions, _setSortOptions] = useState({
+    IN: null,
+    IU: null,
+    NU: null,
+    NN: null,
+  });
+  const sortOptionsRef = useRef(sortOptions);
+  const setSortOptions = (newOptions) => {
+    sortOptionsRef.current = newOptions;
+    _setSortOptions(newOptions);
+  };
 
   const addTask = () => {
     const newTask = {
@@ -20,17 +33,19 @@ const App = () => {
       dueDate: null,
       completed: false,
       list: "inbox",
+      orderIndex: tasks.filter(t => t.list === "inbox").length,
       movedToQuadrantAt: null,
-      manualOrderIndex: tasks.length,
     };
     setTasks((prev) => [...prev, newTask]);
+    // print add for debugging
+    console.log("Added Task:", newTask.title, "Order Index:", newTask.orderIndex);
+    // print tasks title and orderIndex for debugging
+    console.log("Tasks:", tasks.map(t => ({ title: t.title, orderIndex: t.orderIndex })));
   };
 
   const updateTask = (id, updatedFields) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, ...updatedFields } : task
-      )
+      prev.map((task) => (task.id === id ? { ...task, ...updatedFields } : task))
     );
   };
 
@@ -38,59 +53,69 @@ const App = () => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
-  const sortOptionsRef = useRef({
-    IN: null,
-    IU: null,
-    NU: null,
-    NN: null,
-  });
-  const [sortOptions, _setSortOptions] = useState(sortOptionsRef.current);
-  const setSortOptions = (newOptions) => {
-    sortOptionsRef.current = newOptions;
-    _setSortOptions(newOptions);
+  const updateOrderIndices = (taskList, listId) => {
+    return taskList.map((task, index) => ({
+      ...task,
+      orderIndex: listId === task.list ? index : task.orderIndex,
+    }));
   };
 
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
-
+  
     const destId = destination.droppableId;
     const sourceId = source.droppableId;
-
+    if (!destId || !sourceId) return;
+  
     const draggedTask = tasks.find((t) => t.id === draggableId);
     if (!draggedTask) return;
-
-    const updatedTask = {
-      ...draggedTask,
-      list: destId,
-      important: destId === "IU" || destId === "IN",
-      urgent: destId === "IU" || destId === "NU",
-      movedToQuadrantAt: destId === "inbox" ? null : new Date().toISOString(),
-    };
-
+  
     const filteredTasks = tasks.filter((t) => t.id !== draggableId);
     const sameListTasks = filteredTasks.filter((t) => t.list === destId);
     const otherTasks = filteredTasks.filter((t) => t.list !== destId);
-
+  
+    let updatedTask = { ...draggedTask };
+  
+    // 是否跨 quadrant
+    const movedToNewList = sourceId !== destId;
+  
+    if (movedToNewList) {
+      updatedTask = {
+        ...updatedTask,
+        list: destId,
+        important: destId === "IU" || destId === "IN",
+        urgent: destId === "IU" || destId === "NU",
+        movedToQuadrantAt: destId === "inbox" ? null : new Date().toISOString(),
+      };
+    }
+  
+    // 插入新的位置
     sameListTasks.splice(destination.index, 0, updatedTask);
-
-    const reindexedTasks = sameListTasks.map((t, i) => ({
+  
+    // 重新建立該 quadrant 的排序
+    const reindexed = sameListTasks.map((t, i) => ({
       ...t,
-      manualOrderIndex: i,
+      orderIndex: i,
     }));
-
-    setTasks([...otherTasks, ...reindexedTasks]);
-
-    if (sourceId !== destId || source.index !== destination.index) {
-      setSortOptions({
-        ...sortOptionsRef.current,
+  
+    setTasks([...otherTasks, ...reindexed]);
+  
+    // 若跨 quadrant，清除排序條件
+    if (movedToNewList) {
+      setSortOptions((prev) => ({
+        ...prev,
         [sourceId]: null,
         [destId]: null,
-      });
+      }));
     }
-    console.log(tasks);
-    console.log(sortOptionsRef.current);
+    // print sort options for debugging
+    console.log("Sort Options:", sortOptions);
+    // print tasks title and orderIndex for debugging
+    console.log("Tasks:", tasks.map(t => ({ title: t.title, orderIndex: t.orderIndex })));
   };
+  
+  
 
   const quadrantMeta = {
     IN: { title: "重要&不緊急", hint: "制定計劃", bgColor: "bg-blue-100" },
@@ -103,6 +128,7 @@ const App = () => {
     const meta = quadrantMeta[id];
     return (
       <Quadrant
+        key={id}
         id={id}
         title={meta.title}
         hint={meta.hint}
@@ -111,9 +137,38 @@ const App = () => {
         updateTask={updateTask}
         deleteTask={deleteTask}
         sortOption={sortOptions[id]}
-        setSortOption={(option) =>
-          setSortOptions({ ...sortOptionsRef.current, [id]: option })
-        }
+        setSortOption={(option) => {
+          const quadrantTasks = tasks.filter((t) => t.list === id);
+          let sorted;
+          switch (option) {
+            case "createdNewFirst":
+              sorted = [...quadrantTasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              break;
+            case "createdOldFirst":
+              sorted = [...quadrantTasks].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+              break;
+            case "dueSoon":
+              sorted = [...quadrantTasks].sort((a, b) => new Date(a.dueDate || Infinity) - new Date(b.dueDate || Infinity));
+              break;
+            case "dueLater":
+              sorted = [...quadrantTasks].sort((a, b) => new Date(b.dueDate || 0) - new Date(a.dueDate || 0));
+              break;
+            default:
+              sorted = quadrantTasks;
+              break;
+          }
+          const updated = updateOrderIndices(sorted, id);
+          setTasks((prev) => [
+            ...prev.filter((t) => t.list !== id),
+            ...updated,
+          ]);
+          setSortOptions({ ...sortOptionsRef.current, [id]: option });
+          // print sort option
+          console.log(`Sort option for ${id}:`, option);
+          // print tasks title and orderIndex for debugging
+          console.log("Tasks after sorting:", updated.map(t => ({ title: t.title, orderIndex: t.orderIndex })));
+
+        }}
       />
     );
   };
@@ -138,6 +193,7 @@ const App = () => {
           </div>
           {tasks
             .filter((t) => t.list === "inbox")
+            .sort((a, b) => a.orderIndex - b.orderIndex)
             .map((task, index) => (
               <Task
                 key={task.id}
