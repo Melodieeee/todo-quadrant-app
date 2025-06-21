@@ -73,7 +73,7 @@ const ResizableSplitPane = ({ left, right }) => {
         onDoubleClick={handleDoubleClickLeft}
         style={{
           width: leftWidth,
-          overflow: "auto",
+          overflow: "hidden",
         }}
       >
         {left}
@@ -101,7 +101,7 @@ const ResizableSplitPane = ({ left, right }) => {
       />
 
       {/* 右側 */}
-      <div style={{ flex: 1, overflow: "auto" }}>{right}</div>
+      <div style={{ flex: 1, overflow: "hidden" }}>{right}</div>
 
       {/* Overlay 提示 */}
       {showTip && (

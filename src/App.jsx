@@ -136,7 +136,6 @@ const App = () => {
         tasks={tasks}
         updateTask={updateTask}
         deleteTask={deleteTask}
-        sortOption={sortOptions[id]}
         setSortOption={(option) => {
           const quadrantTasks = tasks.filter((t) => t.list === id);
           let sorted;
@@ -184,6 +183,7 @@ const App = () => {
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Todo List</h2>
+            
             <button
               onClick={addTask}
               className="no-expand text-[#fff7e6] bg-[#5c3a1e] hover:bg-[#935629] px-3 py-1 rounded"

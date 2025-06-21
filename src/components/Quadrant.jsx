@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import Task from "./Task";
 import Tooltip from "./Tooltip";
@@ -13,7 +13,6 @@ const Quadrant = ({
   tasks,
   updateTask,
   deleteTask,
-  sortOption,
   setSortOption,
 }) => {
   const [filterStatus, setFilterStatus] = useState("all");
@@ -23,10 +22,6 @@ const Quadrant = ({
   const [isFilterHovered, setIsFilterHovered] = useState(false);
   const sortTimeoutRef = useRef(null);
   const filterTimeoutRef = useRef(null);
-
-  const applySort = (option) => {
-    setSortOption(option);
-  };
 
   const filterTasks = (taskList) => {
     let filtered = taskList;
@@ -148,25 +143,25 @@ const Quadrant = ({
             {isSortHovered && (
               <div className="no-expand absolute right-0 z-20 bg-white border rounded shadow-md text-sm mt-1 min-w-[10rem]">
                 <button
-                  onClick={() => applySort("createdNewFirst")}
+                  onClick={() => setSortOption("createdNewFirst")}
                   className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
                 >
                   加入時間：新 → 舊
                 </button>
                 <button
-                  onClick={() => applySort("createdOldFirst")}
+                  onClick={() => setSortOption("createdOldFirst")}
                   className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
                 >
                   加入時間：舊 → 新
                 </button>
                 <button
-                  onClick={() => applySort("dueSoon")}
+                  onClick={() => setSortOption("dueSoon")}
                   className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
                 >
                   到期時間：近 → 遠
                 </button>
                 <button
-                  onClick={() => applySort("dueLater")}
+                  onClick={() => setSortOption("dueLater")}
                   className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
                 >
                   到期時間：遠 → 近
