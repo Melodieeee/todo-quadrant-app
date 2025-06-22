@@ -4,6 +4,7 @@ import Task from "./Task";
 import Tooltip from "./Tooltip";
 import { MdSort } from "react-icons/md";
 import { FiFilter } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 const Quadrant = ({
   id,
@@ -15,6 +16,8 @@ const Quadrant = ({
   deleteTask,
   setSortOption,
 }) => {
+  const { t } = useTranslation();
+
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterDue, setFilterDue] = useState("all");
 
@@ -75,46 +78,38 @@ const Quadrant = ({
             }}
           >
             <button
-              className="no-expand p-1 hover:bg-gray-200 rounded"
-              title="篩選"
+              className="no-expand p-1 text-gray-700 hover:text-orange-400 transition-colors duration-200 rounded"
+              title={t('filter')}
             >
               <FiFilter />
             </button>
             {isFilterHovered && (
-              <div className="no-expand absolute right-0 z-20 bg-white border rounded shadow-md text-sm mt-1 min-w-[8rem]">
-                <div className="px-4 pt-2 pb-1 font-semibold">完成狀態</div>
+              <div className="no-expand absolute right-0 z-20 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[8rem]">
+                <div className="px-4 pt-2 pb-1 font-semibold">{t("completion")}</div>
                 {["all", "completed", "incomplete"].map((status) => (
                   <button
                     key={status}
                     onClick={() => setFilterStatus(status)}
-                    className={`block px-4 py-1 hover:bg-gray-100 w-full text-left ${
-                      filterStatus === status ? "bg-gray-200" : ""
+                    className={`block px-4 py-1 hover:bg-yellow-100 w-full text-left ${
+                      filterStatus === status ? "bg-yellow-200" : ""
                     }`}
                   >
-                    {status === "all"
-                      ? "全部"
-                      : status === "completed"
-                      ? "已完成"
-                      : "未完成"}
+                    {t(status)}
                   </button>
                 ))}
 
                 <div className="px-4 pt-2 pb-1 border-t font-semibold">
-                  到期狀態
+                  {t("dueOrNot")}
                 </div>
                 {["all", "overdue", "notOverdue"].map((due) => (
                   <button
                     key={due}
                     onClick={() => setFilterDue(due)}
-                    className={`block px-4 py-1 hover:bg-gray-100 w-full text-left ${
-                      filterDue === due ? "bg-gray-200" : ""
+                    className={`block px-4 py-1 hover:bg-yellow-100 w-full text-left ${
+                      filterDue === due ? "bg-yellow-200" : ""
                     }`}
                   >
-                    {due === "all"
-                      ? "全部"
-                      : due === "overdue"
-                      ? "已到期"
-                      : "未到期"}
+                     {t(due)}
                   </button>
                 ))}
               </div>
@@ -135,36 +130,36 @@ const Quadrant = ({
             }}
           >
             <button
-              className="no-expand p-1 hover:bg-gray-200 rounded"
-              title="排序"
+              className="no-expand p-1 text-gray-700 hover:text-orange-400 transition-colors duration-200 rounded"
+              title={t('sort')}
             >
               <MdSort />
             </button>
             {isSortHovered && (
-              <div className="no-expand absolute right-0 z-20 bg-white border rounded shadow-md text-sm mt-1 min-w-[10rem]">
+              <div className="no-expand absolute right-0 z-20 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[10rem]">
                 <button
                   onClick={() => setSortOption("createdNewFirst")}
-                  className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+                  className="block px-4 py-2 hover:bg-yellow-100 w-full text-left"
                 >
-                  加入時間：新 → 舊
+                  {t("joinTimeNewToOld")}
                 </button>
                 <button
                   onClick={() => setSortOption("createdOldFirst")}
-                  className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+                  className="block px-4 py-2 hover:bg-yellow-100 w-full text-left"
                 >
-                  加入時間：舊 → 新
+                  {t("joinTimeOldToNew")}
                 </button>
                 <button
                   onClick={() => setSortOption("dueSoon")}
-                  className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+                  className="block px-4 py-2 hover:bg-yellow-100 w-full text-left"
                 >
-                  到期時間：近 → 遠
+                  {t("dueTimeNewToOld")}
                 </button>
                 <button
                   onClick={() => setSortOption("dueLater")}
-                  className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+                  className="block px-4 py-2 hover:bg-yellow-100 w-full text-left"
                 >
-                  到期時間：遠 → 近
+                  {t("dueTimeOldToNew")}
                 </button>
               </div>
             )}

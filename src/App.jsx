@@ -6,8 +6,12 @@ import { v4 as uuidv4 } from "uuid";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import ResizableSplitPane from "./components/ResizableSplitPane";
 import QuadrantGrid from "./components/QuadrantGrid";
+import SettingsDropdown from "./components/SettingsDropdown";
+import { FiPlusCircle } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 const App = () => {
+
   const [tasks, setTasks] = useState([]);
 
   const [sortOptions, _setSortOptions] = useState({
@@ -22,10 +26,15 @@ const App = () => {
     _setSortOptions(newOptions);
   };
 
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
   const addTask = () => {
     const newTask = {
       id: uuidv4(),
-      title: "New Task",
+      title: t("newTask"),
       description: "",
       important: false,
       urgent: false,
@@ -33,19 +42,17 @@ const App = () => {
       dueDate: null,
       completed: false,
       list: "inbox",
-      orderIndex: tasks.filter(t => t.list === "inbox").length,
+      orderIndex: tasks.filter((t) => t.list === "inbox").length,
       movedToQuadrantAt: null,
     };
     setTasks((prev) => [...prev, newTask]);
-    // print add for debugging
-    console.log("Added Task:", newTask.title, "Order Index:", newTask.orderIndex);
-    // print tasks title and orderIndex for debugging
-    console.log("Tasks:", tasks.map(t => ({ title: t.title, orderIndex: t.orderIndex })));
   };
 
   const updateTask = (id, updatedFields) => {
     setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, ...updatedFields } : task))
+      prev.map((task) =>
+        task.id === id ? { ...task, ...updatedFields } : task
+      )
     );
   };
 
@@ -63,23 +70,23 @@ const App = () => {
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
-  
+
     const destId = destination.droppableId;
     const sourceId = source.droppableId;
     if (!destId || !sourceId) return;
-  
+
     const draggedTask = tasks.find((t) => t.id === draggableId);
     if (!draggedTask) return;
-  
+
     const filteredTasks = tasks.filter((t) => t.id !== draggableId);
     const sameListTasks = filteredTasks.filter((t) => t.list === destId);
     const otherTasks = filteredTasks.filter((t) => t.list !== destId);
-  
+
     let updatedTask = { ...draggedTask };
-  
+
     // 是否跨 quadrant
     const movedToNewList = sourceId !== destId;
-  
+
     if (movedToNewList) {
       updatedTask = {
         ...updatedTask,
@@ -89,18 +96,18 @@ const App = () => {
         movedToQuadrantAt: destId === "inbox" ? null : new Date().toISOString(),
       };
     }
-  
+
     // 插入新的位置
     sameListTasks.splice(destination.index, 0, updatedTask);
-  
+
     // 重新建立該 quadrant 的排序
     const reindexed = sameListTasks.map((t, i) => ({
       ...t,
       orderIndex: i,
     }));
-  
+
     setTasks([...otherTasks, ...reindexed]);
-  
+
     // 若跨 quadrant，清除排序條件
     if (movedToNewList) {
       setSortOptions((prev) => ({
@@ -109,20 +116,14 @@ const App = () => {
         [destId]: null,
       }));
     }
-    // print sort options for debugging
-    console.log("Sort Options:", sortOptions);
-    // print tasks title and orderIndex for debugging
-    console.log("Tasks:", tasks.map(t => ({ title: t.title, orderIndex: t.orderIndex })));
   };
-  
-  
 
   const quadrantMeta = {
-    IN: { title: "重要&不緊急", hint: "制定計劃", bgColor: "bg-blue-100" },
-    IU: { title: "緊急&重要", hint: "優先解決", bgColor: "bg-red-100" },
-    NU: { title: "緊急&不重要", hint: "給別人做", bgColor: "bg-yellow-100" },
-    NN: { title: "不重要&不緊急", hint: "有空再做", bgColor: "bg-green-100" },
-  };
+    IN: { title: t("IN"), hint: t("makePlan"), bgColor: "bg-blue-100" },
+    IU: { title: t("IU"), hint: t("prioritize"), bgColor: "bg-pink-100" },
+    NU: { title: t("NU"), hint: t("findOneDo"), bgColor: "bg-yellow-100" },
+    NN: { title: t("NN"), hint: t("doWhenFree"), bgColor: "bg-green-100" },
+  };  
 
   const renderQuadrant = (id) => {
     const meta = quadrantMeta[id];
@@ -141,16 +142,26 @@ const App = () => {
           let sorted;
           switch (option) {
             case "createdNewFirst":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+              );
               break;
             case "createdOldFirst":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+              );
               break;
             case "dueSoon":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(a.dueDate || Infinity) - new Date(b.dueDate || Infinity));
+              sorted = [...quadrantTasks].sort(
+                (a, b) =>
+                  new Date(a.dueDate || Infinity) -
+                  new Date(b.dueDate || Infinity)
+              );
               break;
             case "dueLater":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(b.dueDate || 0) - new Date(a.dueDate || 0));
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(b.dueDate || 0) - new Date(a.dueDate || 0)
+              );
               break;
             default:
               sorted = quadrantTasks;
@@ -162,11 +173,6 @@ const App = () => {
             ...updated,
           ]);
           setSortOptions({ ...sortOptionsRef.current, [id]: option });
-          // print sort option
-          console.log(`Sort option for ${id}:`, option);
-          // print tasks title and orderIndex for debugging
-          console.log("Tasks after sorting:", updated.map(t => ({ title: t.title, orderIndex: t.orderIndex })));
-
         }}
       />
     );
@@ -182,14 +188,20 @@ const App = () => {
           style={{ height: "100%" }}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Todo List</h2>
-            
-            <button
-              onClick={addTask}
-              className="no-expand text-[#fff7e6] bg-[#5c3a1e] hover:bg-[#935629] px-3 py-1 rounded"
-            >
-              +
-            </button>
+            <h2 className="text-2xl font-bold">{t("todoList")}</h2>
+            <div className="flex items-center space-x-3">
+              <SettingsDropdown
+                language={i18n.language}
+                setLanguage={changeLanguage}
+              />
+              <button
+                title={t("addTask")}
+                onClick={addTask}
+                className="no-expand p-1 rounded text-gray-700 hover:text-gray-400 transition-colors duration-200"
+              >
+                <FiPlusCircle />
+              </button>
+            </div>
           </div>
           {tasks
             .filter((t) => t.list === "inbox")

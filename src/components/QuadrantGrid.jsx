@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const Split = ({
   direction = "horizontal",
@@ -8,6 +9,7 @@ const Split = ({
   collapsedIndex,
   setCollapsedIndex,
 }) => {
+  const { t } = useTranslation();
   const isHorizontal = direction === "horizontal";
   const dragging = useRef(false);
 
@@ -54,7 +56,7 @@ const Split = ({
 
       {/* divider */}
       <div
-        title="Drag to resize"
+        title={t("dragToResize")}
         onMouseDown={onMouseDown}
         style={{
           width: isHorizontal

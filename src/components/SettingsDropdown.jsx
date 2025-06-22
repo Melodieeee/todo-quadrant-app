@@ -1,73 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { FiSettings } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
-const SettingsDropdown = ({ theme, setTheme, language, setLanguage }) => {
+const SettingsDropdown = ({ language, setLanguage }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-
-  const toggleDropdown = () => setOpen(!open);
-
-  const handleColorChange = (e) => {
-    const { name, value } = e.target;
-    setTheme((prev) => ({ ...prev, [name]: value }));
-  };
+  const timeoutRef = useRef(null);
 
   return (
-    <div className="relative mr-2">
-      <button
-        onClick={toggleDropdown}
-        className="text-gray-700 hover:text-black"
-        title="Settings"
+<div
+  className="relative flex items-center"
+  onMouseEnter={() => {
+    clearTimeout(timeoutRef.current);
+    setOpen(true);
+  }}
+  onMouseLeave={() => {
+    timeoutRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 100);
+  }}
+>
+  <button
+    className="no-expand text-gray-700 hover:text-gray-400 transition-colors duration-200"
+    title={t('settings')}
+  >
+    <FiSettings size={15} />
+  </button>
+  {open && (
+    <div className="no-expand absolute z-20 right-0 top-5 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[8rem] py-2 px-3">
+      <label className="block font-medium mb-1">{t('language')}</label>
+      <select
+        value={language}
+        onChange={(e) => setLanguage(e.target.value)}
+        className="w-full border border-yellow-800 rounded px-2 py-1"
       >
-        <FiSettings size={20} />
-      </button>
-      {open && (
-        <div className="absolute z-50 right-0 mt-2 w-64 p-4 bg-white rounded shadow-lg">
-          <div className="mb-4">
-            <label className="block font-medium mb-1">Language</label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full border border-gray-300 rounded px-2 py-1"
-            >
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-            </select>
-          </div>
-          <div className="mb-2">
-            <label className="block font-medium">Task Background</label>
-            <input
-              type="color"
-              name="taskBg"
-              value={theme.taskBg}
-              onChange={handleColorChange}
-              className="w-full"
-            />
-          </div>
-          <div className="mb-2">
-            <label className="block font-medium">Todo List BG</label>
-            <input
-              type="color"
-              name="inboxBg"
-              value={theme.inboxBg}
-              onChange={handleColorChange}
-              className="w-full"
-            />
-          </div>
-          {['IN', 'IU', 'NU', 'NN'].map((key) => (
-            <div key={key} className="mb-2">
-              <label className="block font-medium">Quadrant {key}</label>
-              <input
-                type="color"
-                name={`quadrant_${key}`}
-                value={theme[`quadrant_${key}`]}
-                onChange={handleColorChange}
-                className="w-full"
-              />
-            </div>
-          ))}
-        </div>
-      )}
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+      </select>
     </div>
+  )}
+</div>
+
   );
 };
 

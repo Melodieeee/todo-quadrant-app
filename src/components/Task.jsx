@@ -4,8 +4,10 @@ import { Pencil, Trash2 } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import TooltipToggle from "./TooltipToggle";
+import { useTranslation } from "react-i18next";
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
@@ -83,21 +85,21 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     }
                   }}
                 >
-                  <label className="block text-sm font-semibold mb-1">標題</label>
+                  <label className="block text-sm font-semibold mb-1">{t('title')}</label>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
-                    placeholder="輸入任務標題"
+                    placeholder={t("enterTitle")}
                   />
-                  <label className="block text-sm font-semibold mb-1">描述</label>
+                  <label className="block text-sm font-semibold mb-1">{t('description')}</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
-                    placeholder="輸入任務描述"
+                    placeholder={t("enterDescription")}
                   />
-                  <label className="block text-sm font-semibold mb-1">到期時間</label>
+                  <label className="block text-sm font-semibold mb-1">{t('dueTime')}</label>
                   <input
                     type="datetime-local"
                     value={dueDateState}
@@ -111,7 +113,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       onClick={handleSave}
                       className="bg-green-400 text-white px-3 py-1 rounded"
                     >
-                      儲存
+                      {t('save')}
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.95 }}
@@ -119,7 +121,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       onClick={() => setEditing(false)}
                       className="bg-gray-300 text-black px-3 py-1 rounded"
                     >
-                      取消
+                      {t('cancel')}
                     </motion.button>
                   </div>
                 </motion.div>
@@ -163,7 +165,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       task.completed ? "line-through" : ""
                     }`}
                   >
-                    <span>Join：</span>
+                    <span>{t('join')}：</span>
                     <TooltipToggle
                       defaultValue={formatDistanceToNow(createdAt, {
                         addSuffix: true,
@@ -181,7 +183,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                         task.completed ? "line-through" : ""
                       }`}
                     >
-                      <span>Due：</span>
+                      <span>{t('due')}：</span>
                       <TooltipToggle
                         defaultValue={formatDistanceToNow(dueDate, {
                           addSuffix: true,
@@ -202,7 +204,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     >
                       <Pencil
                         size={18}
-                        className="text-blue-500 hover:text-blue-700"
+                        className="text-teal-400 hover:text-blue-500"
                       />
                     </motion.button>
                     <motion.button
@@ -212,7 +214,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     >
                       <Trash2
                         size={18}
-                        className="text-red-500 hover:text-red-700"
+                        className="text-pink-500 hover:text-pink-700"
                       />
                     </motion.button>
                   </div>

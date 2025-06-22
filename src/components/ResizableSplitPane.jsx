@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const MIN_WIDTH = 150;
 const MAX_WIDTH = window.innerWidth - 150;
 
 const ResizableSplitPane = ({ left, right }) => {
+  const { t } = useTranslation();
   const [leftWidth, setLeftWidth] = useState(300);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showTip, setShowTip] = useState(false);
@@ -21,10 +23,10 @@ const ResizableSplitPane = ({ left, right }) => {
 
     if (newWidth < MIN_WIDTH) {
       setIsCollapsed("left");
-      showOverlay("Left panel collapsed");
+      showOverlay(t("todoListCollapsed"));
     } else if ( newWidth > MAX_WIDTH) {
       setIsCollapsed("right");
-      showOverlay("Right panel collapsed");
+      showOverlay(t("quadrantCollapsed"));
     } else {
       setIsCollapsed(false);
     }
@@ -82,12 +84,11 @@ const ResizableSplitPane = ({ left, right }) => {
       {/* 分隔條或短線 */}
       <div
         title= {isCollapsed === "left"
-          ? "Todo List - Drag to expand"
+          ? t("todoListDragToExpand")
           : isCollapsed === "right"
-          ? "Quadrants - Drag to expand"
-          : "Drag to resize" }
+          ? t("quadrantDragToExpand")
+          : t("dragToResize")} 
         onMouseDown={onMouseDown}
-        //onClick={isCollapsed ? handleExpand : null}
         style={{
           width:  "6px",
           height: isCollapsed ? "20%" : "100%",
