@@ -30,6 +30,8 @@ const resources = {
           // inbox btn
           settings: "Settings",
           language: "Language",
+          loginWithGoogle: "Login with Google",
+          logout: "Logout",
           // quadrant btn
           filter: "Filter",
           sort: "Sort",
@@ -83,6 +85,8 @@ const resources = {
             //inbox btn
             settings: "設定",
             language: "語言",
+            loginWithGoogle: "使用 Google 登入",
+            logout: "登出",
             //quadrant btn
             filter: "篩選",
             sort: "排序",
