@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
-import { FiSettings } from "react-icons/fi";
+import { FiSettings, FiGlobe } from "react-icons/fi";
+
 import { useTranslation } from "react-i18next";
 
 const SettingsDropdown = ({ language, setLanguage }) => {
@@ -28,7 +29,10 @@ const SettingsDropdown = ({ language, setLanguage }) => {
   </button>
   {open && (
     <div className="no-expand absolute z-20 right-0 top-5 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[8rem] py-2 px-3">
-      <label className="block font-medium mb-1">{t('language')}</label>
+      <label className="block font-medium mb-1 flex items-center gap-1">
+        <FiGlobe />
+        {t('language')}
+      </label>
       <select
         value={language}
         onChange={(e) => setLanguage(e.target.value)}

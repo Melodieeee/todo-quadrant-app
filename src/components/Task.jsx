@@ -42,7 +42,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className="no-expand border p-3 mb-2 rounded bg-white shadow"
+            className="no-expand p-3 mb-2 rounded bg-white shadow-lg"
           >
             {task.title}
           </div>
@@ -51,7 +51,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`no-expand border p-3 mb-2 rounded bg-white shadow ${
+            className={`no-expand p-3 mb-2 rounded bg-white shadow-lg ${
               task.completed ? "opacity-50" : ""
             }`}
             onDoubleClick={(e) => {

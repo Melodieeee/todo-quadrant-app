@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Task from "./components/Task";
 import Quadrant from "./components/Quadrant";
 import { v4 as uuidv4 } from "uuid";
@@ -27,8 +27,16 @@ const App = () => {
   };
 
   const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLang = localStorage.getItem("language");
+    if (savedLang) {
+      i18n.changeLanguage(savedLang);
+    }
+  }, [i18n]);
+
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
+    localStorage.setItem("language", lng);
   };
 
   const addTask = () => {
