@@ -13,7 +13,7 @@ const SettingsDropdown = ({ language, setLanguage, user }) => {
       method: "POST",
       credentials: "include",
     }).then(() => {
-      setUser(null);
+      user = null;
       window.location.reload();
     });
   };

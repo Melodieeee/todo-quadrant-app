@@ -11,7 +11,7 @@ const Quadrant = ({
   title,
   hint,
   bgColor,
-  tasks,
+  quadrantTasks,
   updateTask,
   deleteTask,
   setSortOption,
@@ -48,7 +48,7 @@ const Quadrant = ({
     return filtered;
   };
 
-  const quadrantTasks = tasks.filter((t) => t.list === id);
+  //const quadrantTasks = tasks.filter((t) => t.list === id);
   const filteredTasks = filterTasks(quadrantTasks);
 
   const sortedTasks = [...filteredTasks].sort(

@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Pencil, Trash2 } from "lucide-react";
-import { formatDistanceToNow, parseISO } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import TooltipToggle from "./TooltipToggle";
 import { useTranslation } from "react-i18next";
+
+// 安全解析日期
+const safeParseDate = (input) => {
+  if (!input) return null;
+  const parsed = new Date(input);
+  return isNaN(parsed.getTime()) ? null : parsed;
+};
 
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const { t } = useTranslation();
@@ -12,7 +19,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [dueDateState, setDueDateState] = useState(
-    task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 16) : ""
+    task.dueDate ? safeParseDate(task.dueDate)?.toISOString().slice(0, 16) : ""
   );
 
   const handleSave = () => {
@@ -24,15 +31,8 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
     setEditing(false);
   };
 
-  const createdAt =
-    typeof task.createdAt === "string"
-      ? parseISO(task.createdAt)
-      : task.createdAt;
-  const dueDate = task.dueDate
-    ? typeof task.dueDate === "string"
-      ? parseISO(task.dueDate)
-      : task.dueDate
-    : null;
+  const createdAt = safeParseDate(task.createdAt);
+  const dueDate = safeParseDate(task.dueDate);
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -85,22 +85,30 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     }
                   }}
                 >
-                  <label className="block text-sm font-semibold mb-1">{t('title')}</label>
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("title")}
+                  </label>
                   <input
+                    name="taskTitle"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
                     placeholder={t("enterTitle")}
                   />
-                  <label className="block text-sm font-semibold mb-1">{t('description')}</label>
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("description")}
+                  </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
                     placeholder={t("enterDescription")}
                   />
-                  <label className="block text-sm font-semibold mb-1">{t('dueTime')}</label>
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("dueTime")}
+                  </label>
                   <input
+                    name="dueDate"
                     type="datetime-local"
                     value={dueDateState}
                     onChange={(e) => setDueDateState(e.target.value)}
@@ -113,7 +121,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       onClick={handleSave}
                       className="bg-green-400 text-white px-3 py-1 rounded"
                     >
-                      {t('save')}
+                      {t("save")}
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.95 }}
@@ -121,7 +129,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       onClick={() => setEditing(false)}
                       className="bg-gray-300 text-black px-3 py-1 rounded"
                     >
-                      {t('cancel')}
+                      {t("cancel")}
                     </motion.button>
                   </div>
                 </motion.div>
@@ -142,6 +150,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       {task.title}
                     </h4>
                     <input
+                      name="taskCompleted"
                       type="checkbox"
                       checked={task.completed}
                       onChange={(e) =>
@@ -160,22 +169,24 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     </div>
                   )}
 
-                  <div
-                    className={`text-xs text-gray-500 mt-1 ${
-                      task.completed ? "line-through" : ""
-                    }`}
-                  >
-                    <span>{t('join')}：</span>
-                    <TooltipToggle
-                      defaultValue={formatDistanceToNow(createdAt, {
-                        addSuffix: true,
-                      })}
-                      tooltip={createdAt.toLocaleString()}
-                      className={
-                        task.completed ? "line-through text-gray-500" : ""
-                      }
-                    />
-                  </div>
+                  {createdAt && (
+                    <div
+                      className={`text-xs text-gray-500 mt-1 ${
+                        task.completed ? "line-through" : ""
+                      }`}
+                    >
+                      <span>{t("join")}：</span>
+                      <TooltipToggle
+                        defaultValue={formatDistanceToNow(createdAt, {
+                          addSuffix: true,
+                        })}
+                        tooltip={createdAt.toLocaleString()}
+                        className={
+                          task.completed ? "line-through text-gray-500" : ""
+                        }
+                      />
+                    </div>
+                  )}
 
                   {dueDate && (
                     <div
@@ -183,7 +194,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                         task.completed ? "line-through" : ""
                       }`}
                     >
-                      <span>{t('due')}：</span>
+                      <span>{t("due")}：</span>
                       <TooltipToggle
                         defaultValue={formatDistanceToNow(dueDate, {
                           addSuffix: true,

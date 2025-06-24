@@ -9,19 +9,36 @@ import QuadrantGrid from "./components/QuadrantGrid";
 import SettingsDropdown from "./components/SettingsDropdown";
 import { FiPlusCircle } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { q } from "framer-motion/client";
-
-const getListId = (task) => {
-  if (task.important === true && task.urgent === true) return "IU";
-  if (task.important === true && task.urgent === false) return "IN";
-  if (task.important === false && task.urgent === true) return "NU";
-  if (task.important === false && task.urgent === false) return "NN";
-  return "inbox";
-};
 
 const App = () => {
+
+    // 取得登入使用者
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/user/info", { credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Not logged in");
+        return res.json();
+      })
+      .then((data) => setUser(data))
+      .catch(() => setUser(null));
+  }, []);
+
+  // 初始化任務列表
   const [tasks, setTasks] = useState([]);
+  useEffect(() => {
+    fetch("/api/tasks/user")
+      .then((res) => res.json())
+      .then((data) => {
+        setTasks(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch tasks:", err);
+      });
+  }, []);
+  
+
   const [sortOptions, _setSortOptions] = useState({
     IN: null,
     IU: null,
@@ -33,8 +50,8 @@ const App = () => {
     sortOptionsRef.current = newOptions;
     _setSortOptions(newOptions);
   };
-  const { t, i18n } = useTranslation();
 
+  const { t, i18n } = useTranslation();
   useEffect(() => {
     const savedLang = localStorage.getItem("language");
     if (savedLang) {
@@ -47,71 +64,6 @@ const App = () => {
     localStorage.setItem("language", lng);
   };
 
-  useEffect(() => {
-    fetch("/api/user/info", { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Not logged in");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
-
-  //getAllUserTasks
-  useEffect(() => {
-    if (user) {
-      fetch("/api/tasks/user")
-        .then((res) => res.json())
-        .then((data) => {
-          const syncedTasks = data.map((task) => ({ ...task, synced: true }));
-          setTasks((prev) => mergeTasks(prev, syncedTasks));
-        })
-        .catch((err) => console.error("Failed to fetch tasks:", err));
-    }
-  }, [user]);
-
-  //create task
-  useEffect(() => {
-    if (user) {
-      tasks.forEach((task) => {
-        if (!task.synced) {
-          fetch("/api/tasks", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(task),
-            credentials: "include",
-          })
-            .then((res) => {
-              if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
-              }
-              return res.json(); // 只有在 ok 的情況下 parse JSON
-            })
-            .then((data) => {
-              console.log("Task created:", data);
-              // 更新前端狀態
-            })
-            .catch((err) => {
-              console.error("Create task failed:", err);
-            })
-            .then((savedTask) => {
-              setTasks((prev) =>
-                prev.map((t) =>
-                  t.id === task.id ? { ...savedTask, synced: true } : t
-                )
-              );
-            });
-        }
-      });
-    }
-  }, [user, tasks]);
-
-  const mergeTasks = (local, remote) => {
-    const remoteIds = new Set(remote.map((t) => t.id));
-    const filteredLocal = local.filter((t) => !remoteIds.has(t.id));
-    return [...filteredLocal, ...remote];
-  };
-
   const addTask = () => {
     const newTask = {
       id: uuidv4(),
@@ -119,45 +71,31 @@ const App = () => {
       description: "",
       important: null,
       urgent: null,
+      createdAt: new Date().toISOString(),
       dueDate: null,
       completed: false,
-      createdAt: new Date().toISOString(),
-      orderIndex: tasks.filter((t) => getListId(t) === "inbox").length,
-      synced: false,
+      list: "inbox",
+      orderIndex: tasks.filter((t) => t.list === "inbox").length,
     };
     setTasks((prev) => [...prev, newTask]);
-    console.log("Task added:", newTask);
-    console.log("Current tasks:", tasks);
   };
 
   const updateTask = (id, updatedFields) => {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === id ? { ...task, ...updatedFields, synced: false } : task
+        task.id === id ? { ...task, ...updatedFields } : task
       )
     );
   };
 
   const deleteTask = (id) => {
-      // 前端先刪除
-  setTasks((prev) => prev.filter((task) => task.id !== id));
-
-  // 後端刪除
-  fetch(`/api/tasks/${id}`, {
-    method: "DELETE",
-    credentials: "include", // 如果你有登入權限管理
-  }).then((res) => {
-    if (!res.ok) {
-      console.error("Failed to delete from backend");
-    }
-  });
+    setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
-  const updateOrderIndices = (taskList) => {
+  const updateOrderIndices = (taskList, listId) => {
     return taskList.map((task, index) => ({
       ...task,
-      orderIndex: index,
-      synced: false,
+      orderIndex: listId === task.list ? index : task.orderIndex,
     }));
   };
 
@@ -165,30 +103,49 @@ const App = () => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
 
+    const destId = destination.droppableId;
+    const sourceId = source.droppableId;
+    if (!destId || !sourceId) return;
+
     const draggedTask = tasks.find((t) => t.id === draggableId);
     if (!draggedTask) return;
 
-    const destId = destination.droppableId;
-    const sourceId = source.droppableId;
-    const movedToNewList = destId !== sourceId;
+    const filteredTasks = tasks.filter((t) => t.id !== draggableId);
+    const sameListTasks = filteredTasks.filter((t) => t.list === destId);
+    const otherTasks = filteredTasks.filter((t) => t.list !== destId);
 
     let updatedTask = { ...draggedTask };
+
+    // 是否跨 quadrant
+    const movedToNewList = sourceId !== destId;
+
     if (movedToNewList) {
-      updatedTask.important = ["IU", "IN"].includes(destId);
-      updatedTask.urgent = ["IU", "NU"].includes(destId);
+      updatedTask = {
+        ...updatedTask,
+        list: destId,
+        important: destId === "inbox" ? null : (destId === "IU" || destId === "IN"),
+        urgent: destId === "inbox" ? null : (destId === "IU" || destId === "NU"),
+      };
     }
 
-    const filtered = tasks.filter((t) => t.id !== draggedTask.id);
-    const sameListTasks = filtered.filter((t) => getListId(t) === destId);
-    const otherTasks = filtered.filter((t) => getListId(t) !== destId);
-
+    // 插入新的位置
     sameListTasks.splice(destination.index, 0, updatedTask);
-    const reindexed = updateOrderIndices(sameListTasks);
+
+    // 重新建立該 quadrant 的排序
+    const reindexed = sameListTasks.map((t, i) => ({
+      ...t,
+      orderIndex: i,
+    }));
 
     setTasks([...otherTasks, ...reindexed]);
 
+    // 若跨 quadrant，清除排序條件
     if (movedToNewList) {
-      setSortOptions((prev) => ({ ...prev, [sourceId]: null, [destId]: null }));
+      setSortOptions((prev) => ({
+        ...prev,
+        [sourceId]: null,
+        [destId]: null,
+      }));
     }
   };
 
@@ -197,7 +154,7 @@ const App = () => {
     IU: { title: t("IU"), hint: t("prioritize"), bgColor: "bg-pink-100" },
     NU: { title: t("NU"), hint: t("findOneDo"), bgColor: "bg-yellow-100" },
     NN: { title: t("NN"), hint: t("doWhenFree"), bgColor: "bg-green-100" },
-  };
+  };  
 
   const renderQuadrant = (id) => {
     const meta = quadrantMeta[id];
@@ -208,12 +165,11 @@ const App = () => {
         title={meta.title}
         hint={meta.hint}
         bgColor={meta.bgColor}
-        quadrantTasks={tasks.filter((t) => getListId(t) === id)}
+        tasks={tasks}
         updateTask={updateTask}
         deleteTask={deleteTask}
         setSortOption={(option) => {
-          const quadrantTasks = tasks.filter((t) => getListId(t) === id);
-          console.log(quadrantTasks);
+          const quadrantTasks = tasks.filter((t) => t.list === id);
           let sorted;
           switch (option) {
             case "createdNewFirst":
@@ -242,9 +198,9 @@ const App = () => {
               sorted = quadrantTasks;
               break;
           }
-          const updated = updateOrderIndices(sorted);
+          const updated = updateOrderIndices(sorted, id);
           setTasks((prev) => [
-            ...prev.filter((t) => getListId(t) !== id),
+            ...prev.filter((t) => t.list !== id),
             ...updated,
           ]);
           setSortOptions({ ...sortOptionsRef.current, [id]: option });
@@ -280,11 +236,11 @@ const App = () => {
             </div>
           </div>
           {tasks
-            .filter((t) => getListId(t) === "inbox")
+            .filter((t) => t.list === "inbox")
             .sort((a, b) => a.orderIndex - b.orderIndex)
             .map((task, index) => (
               <Task
-                key={task.id || `fallback-${index}`}
+                key={task.id}
                 task={task}
                 index={index}
                 updateTask={updateTask}
