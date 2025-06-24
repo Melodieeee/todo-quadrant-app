@@ -3,22 +3,10 @@ import { FiSettings, FiGlobe } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useTranslation } from "react-i18next";
 
-const SettingsDropdown = ({ language, setLanguage }) => {
+const SettingsDropdown = ({ language, setLanguage, user }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef(null);
-  const [user, setUser] = useState(null);
-
-  // 取得登入使用者
-  useEffect(() => {
-    fetch("/api/user/todo", { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Not logged in");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
 
   const handleLogout = () => {
     fetch("/api/user/logout", {
@@ -56,7 +44,11 @@ const SettingsDropdown = ({ language, setLanguage }) => {
             {user ? (
               <>
                 <div className="block mb-1 font-medium truncate flex items-center gap-1">
-                  <FcGoogle />
+                  <img
+                    src={user.picture}
+                    alt={user.name}
+                    className="w-5 h-5 rounded-full"
+                  />
                   {user.name}
                 </div>
                 <button

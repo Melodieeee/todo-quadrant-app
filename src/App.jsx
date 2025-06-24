@@ -12,7 +12,32 @@ import { useTranslation } from "react-i18next";
 
 const App = () => {
 
+    // 取得登入使用者
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/user/info", { credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Not logged in");
+        return res.json();
+      })
+      .then((data) => setUser(data))
+      .catch(() => setUser(null));
+  }, []);
+
+  // 初始化任務列表
   const [tasks, setTasks] = useState([]);
+  useEffect(() => {
+    fetch("/api/tasks/user")
+      .then((res) => res.json())
+      .then((data) => {
+        setTasks(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch tasks:", err);
+      });
+  }, []);
+  
 
   const [sortOptions, _setSortOptions] = useState({
     IN: null,
@@ -51,7 +76,6 @@ const App = () => {
       completed: false,
       list: "inbox",
       orderIndex: tasks.filter((t) => t.list === "inbox").length,
-      movedToQuadrantAt: null,
     };
     setTasks((prev) => [...prev, newTask]);
   };
@@ -101,7 +125,6 @@ const App = () => {
         list: destId,
         important: destId === "IU" || destId === "IN",
         urgent: destId === "IU" || destId === "NU",
-        movedToQuadrantAt: destId === "inbox" ? null : new Date().toISOString(),
       };
     }
 
@@ -201,6 +224,7 @@ const App = () => {
               <SettingsDropdown
                 language={i18n.language}
                 setLanguage={changeLanguage}
+                user={user}
               />
               <button
                 title={t("addTask")}
