@@ -13,20 +13,34 @@ const safeParseDate = (input) => {
   return isNaN(parsed.getTime()) ? null : parsed;
 };
 
+const toLocalInputValue = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date)) return "";
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  const localDate = new Date(date.getTime() - tzOffset);
+  return localDate.toISOString().slice(0, 16);
+};
+
 const Task = ({ task, index, updateTask, deleteTask }) => {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
+  // const [dueDateState, setDueDateState] = useState(
+  //   task.dueDate ? safeParseDate(task.dueDate)?.toISOString().slice(0, 16) : ""
+  // );
   const [dueDateState, setDueDateState] = useState(
-    task.dueDate ? safeParseDate(task.dueDate)?.toISOString().slice(0, 16) : ""
+    toLocalInputValue(task.dueDate)
   );
 
   const handleSave = () => {
+    const utcDate = dueDateState ? new Date(dueDateState).toISOString() : null;
+
     updateTask(task.id, {
       title,
       description,
-      dueDate: dueDateState ? new Date(dueDateState).toISOString() : null,
+      dueDate: utcDate,
     });
     setEditing(false);
   };
