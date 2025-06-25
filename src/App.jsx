@@ -331,7 +331,7 @@ const App = () => {
               <button
                 title={t("addTask")}
                 onClick={addTask}
-                className="no-expand p-1 rounded text-gray-700 hover:text-gray-400 transition-colors duration-200"
+                className="no-expand p-1 rounded text-gray-700 hover:text-orange-400 transition-colors duration-200"
               >
                 <FiPlusCircle />
               </button>

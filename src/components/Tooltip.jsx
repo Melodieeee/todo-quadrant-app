@@ -32,7 +32,7 @@ const Tooltip = ({ content, children }) => {
           width: "fit-content",
           minWidth: "5rem",         // 最小寬度，大約可容納 4–5 個中文字
           maxWidth: "20rem",        // 最大寬度，超過會自動換行
-          wordBreak: "break-word",  // 讓長單字能換行
+          //wordBreak: "break-word",  // 讓長單字能換行
         }}
       >
         {content}

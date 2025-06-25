@@ -32,7 +32,7 @@ const SettingsDropdown = ({ language, setLanguage, user, onLogin }) => {
       }}
     >
       <button
-        className="no-expand text-gray-700 hover:text-gray-400 transition-colors duration-200"
+        className="no-expand text-gray-700 hover:text-orange-400 transition-colors duration-200"
         title={t("settings")}
       >
         <FiSettings size={15} />
