@@ -55,6 +55,14 @@ const resources = {
           quadrantDragToExpand: "Drag to expand Quadrants",
           todoListCollapsed: "Todo List is collapsed",
           quadrantCollapsed: "Quadrants are collapsed",
+          //Modal
+          localTaskWarningTitle: "Tasks will not be saved",
+          localTaskWarningMessage: "You're not logged in. Tasks added now won't be saved after closing the page.",
+          addMoreUnsavedTasks: "Add more unsaved tasks",
+          mergeTasksTitle: "Merge local tasks?",
+          mergeTasksMessage: "You have unsaved tasks from before logging in. Do you want to merge them with your account?",
+          confirm: "Confirm",
+          skip: "Skip"
         },
     },      
     zh: {
@@ -110,6 +118,14 @@ const resources = {
             quadrantDragToExpand: "拖動來展開象限",
             todoListCollapsed: "待辦清單已折疊",
             quadrantCollapsed: "象限已折疊",
+            // Modal
+            localTaskWarningTitle: "任務不會被儲存",
+            localTaskWarningMessage: "您尚未登入。現在新增的任務在關閉頁面後將不會被儲存。若你希望永久保存任務，請登入。",
+            addMoreUnsavedTasks: "新增更多未儲存任務",
+            mergeTasksTitle: "合併本地任務？",
+            mergeTasksMessage: "您在登入前有未儲存的任務。是否要將它們與您的帳戶合併？",
+            confirm: "確定",
+            skip: "略過"
         },
     },
 };

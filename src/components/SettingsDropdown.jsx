@@ -3,7 +3,7 @@ import { FiSettings, FiGlobe } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useTranslation } from "react-i18next";
 
-const SettingsDropdown = ({ language, setLanguage, user }) => {
+const SettingsDropdown = ({ language, setLanguage, user, onLogin }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef(null);
@@ -60,9 +60,7 @@ const SettingsDropdown = ({ language, setLanguage, user }) => {
               </>
             ) : (
               <button
-                onClick={() => {
-                  window.location.href = "/oauth2/authorization/google";
-                }}
+                onClick={onLogin}
                 className="text-sm hover:text-orange-400 transition-colors duration-200 flex items-center gap-1"
               >
                 <FcGoogle />

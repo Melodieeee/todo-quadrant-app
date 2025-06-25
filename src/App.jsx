@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState, useRef, useEffect } from "react";
 import Task from "./components/Task";
 import Quadrant from "./components/Quadrant";
@@ -9,33 +8,39 @@ import QuadrantGrid from "./components/QuadrantGrid";
 import SettingsDropdown from "./components/SettingsDropdown";
 import { FiPlusCircle } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import LocalTaskWarningModal from "./components/LocalTaskWarningModal";
+import MergeLocalTasksModal from "./components/MergeLocalTasksModal";
 
 const getListId = (task) => {
   if (task.important === true && task.urgent === true) return "IU";
   if (task.important === true && task.urgent === false) return "IN";
   if (task.important === false && task.urgent === true) return "NU";
   if (task.important === false && task.urgent === false) return "NN";
-  return "inbox"; // important / urgent 為 null 或 undefined
+  return "inbox";
 };
 
-const toSerializableTask = (task) => {
-  return {
-    ...task,
-    dueDate: task.dueDate instanceof Date ? task.dueDate.toISOString() : task.dueDate,
-    createdAt: task.createdAt instanceof Date ? task.createdAt.toISOString() : task.createdAt,
-  };
-};
+const toSerializableTask = (task) => ({
+  ...task,
+  dueDate: task.dueDate instanceof Date ? task.dueDate.toISOString() : task.dueDate,
+  createdAt: task.createdAt instanceof Date ? task.createdAt.toISOString() : task.createdAt,
+});
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
-  const [sortOptions, _setSortOptions] = useState({ IN: null, IU: null, NU: null, NN: null });
+  const [showLocalWarning, setShowLocalWarning] = useState(false);
+  const [showMergeModal, setShowMergeModal] = useState(false);
+
+  const [sortOptions, _setSortOptions] = useState({
+    IN: null, IU: null, NU: null, NN: null,
+  });
   const sortOptionsRef = useRef(sortOptions);
   const setSortOptions = (newOptions) => {
     sortOptionsRef.current = newOptions;
     _setSortOptions(newOptions);
   };
   const { t, i18n } = useTranslation();
+  const hasShownLocalWarning = useRef(false);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("language");
@@ -60,28 +65,78 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
-       fetch("/api/tasks/user")
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Fetch Tasks:", data);
-          const syncedTasks = data.map((task) => ({ ...task, synced: true }));
-          setTasks((prev) => mergeTasks(prev, syncedTasks));
-        })
-        .catch((err) => console.error("Failed to fetch tasks:", err));
+    if (!user) return;
+
+    const savedLocal = localStorage.getItem("localTasks");
+    const parsed = savedLocal ? JSON.parse(savedLocal) : [];
+  
+    if (parsed.length > 0) {
+      console.log("Local tasks detected, prompting merge.");
+      setTasks(parsed);
+      setShowMergeModal(true);
+    } else {
+      fetchServerTasks();
     }
   }, [user]);
+  
+  const fetchServerTasks = () => {
+    fetch("/api/tasks/user", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => setTasks(data))
+      .catch(err => console.error("Fetch failed:", err));
+  };
 
-  const mergeTasks = (local, remote) => {
-    const remoteIds = new Set(remote.map((t) => t.id));
-    const filteredLocal = local.filter((t) => !remoteIds.has(t.id));
-    return [...filteredLocal, ...remote];
+  const confirmMergeTasks = async () => {
+    localStorage.removeItem("localTasks");
+    let remoteTasks = [];
+    try {
+      const res = await fetch("/api/tasks/user", { credentials: "include" });
+      if (!res.ok) throw new Error("Fetch failed");
+      remoteTasks = await res.json();
+    } catch (err) {
+      console.error("Failed to fetch remote tasks:", err);
+      return;
+    }
+
+    const maxOrderMap = {};
+    for (const task of remoteTasks) {
+      const listId = getListId(task);
+      maxOrderMap[listId] = Math.max(maxOrderMap[listId] ?? -1, task.orderIndex ?? -1);
+    }
+
+    const tasksToPost = tasks.map((task) => {
+      const listId = getListId(task);
+      const newOrder = (maxOrderMap[listId] ?? -1) + 1;
+      maxOrderMap[listId] = newOrder;
+      return { ...task, orderIndex: newOrder };
+    });
+
+    for (const task of tasksToPost) {
+      try {
+        await fetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(toSerializableTask(task)),
+        });
+      } catch (err) {
+        console.error("Post task failed:", err);
+      }
+    }
+
+    fetchServerTasks();
+    setShowMergeModal(false);
+  };
+
+  const skipMergeTasks = () => {
+    localStorage.removeItem("localTasks");
+    fetchServerTasks();
+    setShowMergeModal(false);
   };
 
   const addTask = async () => {
     const inboxTasks = tasks.filter((t) => getListId(t) === "inbox");
     const tempId = uuidv4();
-
     const baseTask = {
       id: tempId,
       title: t("newTask"),
@@ -92,9 +147,13 @@ const App = () => {
       completed: false,
       createdAt: new Date().toISOString(),
       orderIndex: inboxTasks.length,
-      synced: false,
     };
-    console.log("Base task:", baseTask);
+
+    if (!user && !hasShownLocalWarning.current) {
+      setShowLocalWarning(true);
+      hasShownLocalWarning.current = true;
+    }
+    
     if (user) {
       try {
         const res = await fetch("/api/tasks", {
@@ -105,73 +164,25 @@ const App = () => {
         });
         if (!res.ok) throw new Error("Failed to create task");
         const savedTask = await res.json();
-        setTasks((prev) => [...prev, { ...savedTask, synced: true }]);
-
-        console.log("Saved task:", savedTask);
+        setTasks((prev) => [...prev, savedTask]);
         return;
       } catch (err) {
         console.error("Backend task creation failed:", err);
       }
     }
+
     setTasks((prev) => [...prev, baseTask]);
+    console.log("Local task created:", baseTask);
   };
 
-  // const updateTask = async (id, updatedFields) => {
-  //   console.log("UpdateTask:", updatedFields);
-  //   setTasks((prev) =>
-  //     prev.map((task) => (task.id === id ? { ...task, ...updatedFields } : task))
-  //   );
-
-  //   if (user) {
-  //     try {
-  //       const taskToUpdate = tasks.find((t) => t.id === id);
-  //       if (!taskToUpdate) return;
-  //       const updatedTask = { ...taskToUpdate, ...updatedFields };
-  //       await fetch(`/api/tasks/${id}`, {
-  //         method: "PUT",
-  //         headers: { "Content-Type": "application/json" },
-  //         credentials: "include",
-  //         body: JSON.stringify(updatedTask),
-  //       });
-  //     } catch (err) {
-  //       console.error("Update task failed:", err);
-  //     }
-  //   }
-  // };
-
-  // const updateTask = async (id, updatedFields) => {
-  //   const taskToUpdate = tasks.find((t) => t.id === id);
-  //   if (!taskToUpdate) return;
-  
-  //   const updatedTask = { ...taskToUpdate, ...updatedFields };
-  //   setTasks((prev) =>
-  //     prev.map((task) => (task.id === id ? updatedTask : task))
-  //   );
-  
-  //   if (user) {
-  //     try {
-  //       await fetch(`/api/tasks/${id}`, {
-  //         method: "PUT",
-  //         headers: { "Content-Type": "application/json" },
-  //         credentials: "include",
-  //         body: JSON.stringify(updatedTask),
-  //       });
-  //     } catch (err) {
-  //       console.error("Update task failed:", err);
-  //     }
-  //   }
-  // };
   const updateTask = async (id, updatedFields) => {
     setTasks((prev) => {
       const updatedList = prev.map((task) =>
         task.id === id ? { ...task, ...updatedFields } : task
       );
-  
       const updatedTask = updatedList.find((t) => t.id === id);
-  
-      // get the newest updatedTask
+
       if (user && updatedTask) {
-        console.log("UpdateTask:", updatedTask);
         fetch(`/api/tasks/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -179,14 +190,13 @@ const App = () => {
           body: JSON.stringify(toSerializableTask(updatedTask)),
         }).catch((err) => console.error("Update task failed:", err));
       }
-  
+
       return updatedList;
     });
   };
-  
 
   const deleteTask = async (id) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+    setTasks((prev) => prev.filter((t) => t.id !== id));
     if (user) {
       try {
         await fetch(`/api/tasks/${id}`, {
@@ -199,12 +209,8 @@ const App = () => {
     }
   };
 
-  const updateOrderIndices = (taskList) => {
-    return taskList.map((task, index) => ({
-      ...task,
-      orderIndex: index,
-    }));
-  };
+  const updateOrderIndices = (taskList) =>
+    taskList.map((task, index) => ({ ...task, orderIndex: index }));
 
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
@@ -223,8 +229,8 @@ const App = () => {
         updatedTask.important = null;
         updatedTask.urgent = null;
       } else {
-      updatedTask.important = ["IU", "IN"].includes(destId);
-      updatedTask.urgent = ["IU", "NU"].includes(destId);
+        updatedTask.important = ["IU", "IN"].includes(destId);
+        updatedTask.urgent = ["IU", "NU"].includes(destId);
       }
     }
 
@@ -242,14 +248,8 @@ const App = () => {
         orderIndex: task.orderIndex,
         important: task.important,
         urgent: task.urgent,
-      })
-      console.log("Updated task:", {
-        title: task.title,
-        orderIndex: task.orderIndex,
-        important: task.important,
-        urgent: task.urgent});
-    })
-    //updateTask(updatedTask.id, updatedTask);
+      });
+    });
   };
 
   const quadrantMeta = {
@@ -296,6 +296,11 @@ const App = () => {
             ...prev.filter((t) => getListId(t) !== id),
             ...updated,
           ]);
+          updated.forEach((task) =>
+            updateTask(task.id, {
+              orderIndex: task.orderIndex,
+            })
+          );
           setSortOptions({ ...sortOptionsRef.current, [id]: option });
         }}
       />
@@ -318,6 +323,10 @@ const App = () => {
                 language={i18n.language}
                 setLanguage={changeLanguage}
                 user={user}
+                onLogin={() => {
+                  localStorage.setItem("localTasks", JSON.stringify(tasks));
+                  window.location.href = "/oauth2/authorization/google";
+                }}
               />
               <button
                 title={t("addTask")}
@@ -353,11 +362,27 @@ const App = () => {
   );
 
   return (
-    <div className="bg-gray-100 h-screen w-screen m-0 p-6 overflow-hidden">
-      <DragDropContext onDragEnd={onDragEnd}>
-        <ResizableSplitPane left={leftPanel} right={rightPanel} />
-      </DragDropContext>
-    </div>
+    <>
+      {showLocalWarning && (
+        <LocalTaskWarningModal
+          onClose={() => setShowLocalWarning(false)}
+          onLogin={() => {
+            window.location.href = "/oauth2/authorization/google";
+          }}
+        />
+      )}
+      {showMergeModal && (
+        <MergeLocalTasksModal
+          onConfirmMerge={confirmMergeTasks}
+          onSkipMerge={skipMergeTasks}
+        />
+      )}
+      <div className="bg-gray-100 h-screen w-screen m-0 p-6 overflow-hidden">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <ResizableSplitPane left={leftPanel} right={rightPanel} />
+        </DragDropContext>
+      </div>
+    </>
   );
 };
 
