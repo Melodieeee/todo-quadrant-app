@@ -51,15 +51,15 @@ The Eisenhower Matrix helps you:
 
 ### 🔲 Main View
 
-![Main Quadrant View](./screenshots/main-view.png)
+![Main Quadrant View](./src/assets/main.png)
 
 ### ✏️ Task Editing
 
-![Task Editing](./screenshots/task-editing.png)
+![Task Editing](./src/assets/taskEditing.png)
 
 ### 🔄 Merge Prompt on Login
 
-![Merge Prompt](./screenshots/merge-modal.png)
+![Merge Prompt](./src/assets/mergeWarning.png)
 
 ## 開發指南
 
@@ -132,15 +132,15 @@ VITE_API_BASE_URL=https://your-backend-url.onrender.com
 
 ### 🔲 主畫面
 
-![主畫面](./screenshots/main-view.png)
+![主畫面](./src/assets/main.png)
 
 ### ✏️ 任務編輯畫面
 
-![任務編輯](./screenshots/task-editing.png)
+![任務編輯](./src/assets/taskEditing.png)
 
 ### 🔄 登入後合併提示
 
-![合併提示彈窗](./screenshots/merge-modal.png)
+![合併提示彈窗](./src/assets/mergeWarning.png)
 
 ## 開發指南
 
