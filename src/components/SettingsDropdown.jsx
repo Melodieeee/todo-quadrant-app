@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { FiSettings, FiGlobe } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useTranslation } from "react-i18next";

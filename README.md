@@ -74,7 +74,7 @@ npm run dev
 需要 `.env`檔：
 
 ```
-VITE_API_BASE_URL=https://your-backend-url.onrender.com
+VITE_API_BASE_URL=https://todo-quadrant-app-back.onrender.com
 ```
 
 
@@ -155,5 +155,5 @@ npm run dev
 需要 `.env`檔：
 
 ```
-VITE_API_BASE_URL=https://your-backend-url.onrender.com
+VITE_API_BASE_URL=https://todo-quadrant-app-back.onrender.com
 ```
