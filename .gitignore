@@ -1,24 +1,24 @@
+# Node modules
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+
 # Logs
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Env files
+.env
+.env.*
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# IDE/OS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.vscode/
+.idea/
+
+# Optional: 開發用 proxy 設定
+vite.config.js

@@ -55,7 +55,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetch("/api/user/info", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/info`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Not logged in");
         return res.json();
@@ -80,7 +80,7 @@ const App = () => {
   }, [user]);
   
   const fetchServerTasks = () => {
-    fetch("/api/tasks/user", { credentials: "include" })
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/user`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setTasks(data))
       .catch(err => console.error("Fetch failed:", err));
@@ -90,7 +90,7 @@ const App = () => {
     localStorage.removeItem("localTasks");
     let remoteTasks = [];
     try {
-      const res = await fetch("/api/tasks/user", { credentials: "include" });
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/user`, { credentials: "include" });
       if (!res.ok) throw new Error("Fetch failed");
       remoteTasks = await res.json();
     } catch (err) {
@@ -113,7 +113,7 @@ const App = () => {
 
     for (const task of tasksToPost) {
       try {
-        await fetch("/api/tasks", {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -156,7 +156,7 @@ const App = () => {
     
     if (user) {
       try {
-        const res = await fetch("/api/tasks", {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -183,7 +183,7 @@ const App = () => {
       const updatedTask = updatedList.find((t) => t.id === id);
 
       if (user && updatedTask) {
-        fetch(`/api/tasks/${id}`, {
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -199,7 +199,7 @@ const App = () => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
     if (user) {
       try {
-        await fetch(`/api/tasks/${id}`, {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/${id}`, {
           method: "DELETE",
           credentials: "include",
         });
