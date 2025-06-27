@@ -3,20 +3,10 @@ import { FiSettings, FiGlobe } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { useTranslation } from "react-i18next";
 
-const SettingsDropdown = ({ language, setLanguage, user, onLogin }) => {
+const SettingsDropdown = ({ language, setLanguage, user, onLogin, onLogout }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef(null);
-
-  const handleLogout = () => {
-    fetch("/api/user/logout", {
-      method: "POST",
-      credentials: "include",
-    }).then(() => {
-      user = null;
-      window.location.reload();
-    });
-  };
 
   return (
     <div
@@ -52,7 +42,7 @@ const SettingsDropdown = ({ language, setLanguage, user, onLogin }) => {
                   {user.name}
                 </div>
                 <button
-                  onClick={handleLogout}
+                  onClick={onLogout}
                   className="text-left text-sm hover:text-orange-400 transition-colors duration-200"
                 >
                   {t("logout")}

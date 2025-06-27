@@ -55,7 +55,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/info`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/info`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Not logged in");
         return res.json();
@@ -80,7 +80,7 @@ const App = () => {
   }, [user]);
   
   const fetchServerTasks = () => {
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/user`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/user`, { credentials: "include" })
       .then(res => res.json())
       .then(data => setTasks(data))
       .catch(err => console.error("Fetch failed:", err));
@@ -90,7 +90,7 @@ const App = () => {
     localStorage.removeItem("localTasks");
     let remoteTasks = [];
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/user`, { credentials: "include" });
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/user`, { credentials: "include" });
       if (!res.ok) throw new Error("Fetch failed");
       remoteTasks = await res.json();
     } catch (err) {
@@ -113,7 +113,7 @@ const App = () => {
 
     for (const task of tasksToPost) {
       try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks`, {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -156,7 +156,7 @@ const App = () => {
     
     if (user) {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks`, {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -183,7 +183,7 @@ const App = () => {
       const updatedTask = updatedList.find((t) => t.id === id);
 
       if (user && updatedTask) {
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/${id}`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -199,7 +199,7 @@ const App = () => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
     if (user) {
       try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/tasks/${id}`, {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/${id}`, {
           method: "DELETE",
           credentials: "include",
         });
@@ -215,15 +215,17 @@ const App = () => {
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
-
+  
     const draggedTask = tasks.find((t) => t.id === draggableId);
     if (!draggedTask) return;
-
+  
     const destId = destination.droppableId;
     const sourceId = source.droppableId;
+  
     const movedToNewList = destId !== sourceId;
-
     let updatedTask = { ...draggedTask };
+  
+    // 更新 important / urgent 屬性（如果換清單）
     if (movedToNewList) {
       if (destId === "inbox") {
         updatedTask.important = null;
@@ -233,22 +235,62 @@ const App = () => {
         updatedTask.urgent = ["IU", "NU"].includes(destId);
       }
     }
-
-    const filtered = tasks.filter((t) => t.id !== draggedTask.id);
-    const sameListTasks = filtered.filter((t) => getListId(t) === destId);
-    const otherTasks = filtered.filter((t) => getListId(t) !== destId);
-
-    sameListTasks.splice(destination.index, 0, updatedTask);
-    const reindexed = updateOrderIndices(sameListTasks);
-
-    setTasks([...otherTasks, ...reindexed]);
-
-    reindexed.forEach((task) => {
-      updateTask(task.id, {
-        orderIndex: task.orderIndex,
-        important: task.important,
-        urgent: task.urgent,
+  
+    const otherTasks = tasks.filter((t) => getListId(t) !== sourceId && getListId(t) !== destId);
+  
+    if (sourceId === destId) {
+      // 在同一清單中拖曳：只需對這一清單重排
+      const sameList = tasks
+        .filter((t) => getListId(t) === sourceId)
+        .filter((t) => t.id !== draggedTask.id);
+      sameList.splice(destination.index, 0, updatedTask);
+  
+      const reindexed = updateOrderIndices(sameList);
+      setTasks([...otherTasks, ...reindexed]);
+  
+      reindexed.forEach((task) => {
+        updateTask(task.id, {
+          orderIndex: task.orderIndex,
+        });
       });
+    } else {
+      // 跨清單拖曳
+      const sourceList = tasks
+        .filter((t) => getListId(t) === sourceId)
+        .filter((t) => t.id !== draggedTask.id);
+      const destList = tasks
+        .filter((t) => getListId(t) === destId);
+  
+      destList.splice(destination.index, 0, updatedTask);
+  
+      const reindexedSource = updateOrderIndices(sourceList);
+      const reindexedDest = updateOrderIndices(destList);
+  
+      setTasks([...otherTasks, ...reindexedSource, ...reindexedDest]);
+  
+      [...reindexedSource, ...reindexedDest].forEach((task) => {
+        updateTask(task.id, {
+          orderIndex: task.orderIndex,
+          important: task.important,
+          urgent: task.urgent,
+        });
+      });
+    }
+  };
+  
+  const loginWithGoogle = () => {
+      localStorage.setItem("localTasks", JSON.stringify(tasks));
+      window.location.href = `${import.meta.env.VITE_BACKEND_URL}/oauth2/authorization/google`;
+    }
+  
+  const handleLogout = () => {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).then(() => {
+      setUser(null);
+      window.location.reload();
+      console.log("Logged out successfully");
     });
   };
 
@@ -323,10 +365,8 @@ const App = () => {
                 language={i18n.language}
                 setLanguage={changeLanguage}
                 user={user}
-                onLogin={() => {
-                  localStorage.setItem("localTasks", JSON.stringify(tasks));
-                  window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`;
-                }}
+                onLogin={loginWithGoogle}
+                onLogout={handleLogout}
               />
               <button
                 title={t("addTask")}
@@ -366,9 +406,7 @@ const App = () => {
       {showLocalWarning && (
         <LocalTaskWarningModal
           onClose={() => setShowLocalWarning(false)}
-          onLogin={() => {
-            window.location.href = "/oauth2/authorization/google";
-          }}
+          onLogin={loginWithGoogle}
         />
       )}
       {showMergeModal && (
