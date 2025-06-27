@@ -2,7 +2,7 @@
 
 > A productivity-focused **Eisenhower Matrix** style to-do list web app.
 
-![Screenshot of the App](./screenshots/overview.png)
+![Screenshot of the App](./src/assets/overview.png)
 
 ## 📌 Overview
 
