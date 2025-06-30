@@ -103,6 +103,28 @@ export default defineConfig({
 })
 ```
 
+## 🗺️ Roadmap
+
+### ✅ Completed
+
+- [x] Drag and drop tasks into quadrants  
+- [x] Google OAuth2 login  
+- [x] Bilingual language switch (i18n)  
+- [x] Filter for completed / expired tasks  
+- [x] Task sorting (by creation date / due date)
+
+### 🚧 In Progress / Planned
+
+- [ ] Task search and filtering  
+- [ ] Tag support for categorization  
+- [ ] Dark mode & theme customization  
+- [ ] Responsive layout for mobile and tablet
+
+## 📬 License
+
+MIT License © 2025 Melody Yu
+
+
 ---
 
 # 🌟 [四象限任務管理器](https://todo-quadrant-app.vercel.app)
@@ -205,6 +227,23 @@ export default defineConfig({
   },
 })
 ```
+
+## 🗺️ 開發藍圖（Roadmap）
+
+### ✅ 已完成功能
+
+- [x] 任務可在象限間拖拉排序  
+- [x] Google OAuth2 登入  
+- [x] 支援中英雙語切換  
+- [x] 任務完成 / 過期狀態篩選  
+- [x] 任務排序（建立時間 / 到期日）
+
+### 🚧 計畫開發中功能
+
+- [ ] 任務搜尋與篩選功能  
+- [ ] 支援任務標籤分類  
+- [ ] 深色模式與主題自定義  
+- [ ] 手機與平板裝置的 RWD 響應式排版
 
 ## 📬 License
 
