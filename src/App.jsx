@@ -10,6 +10,7 @@ import { FiPlusCircle } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import LocalTaskWarningModal from "./components/LocalTaskWarningModal";
 import MergeLocalTasksModal from "./components/MergeLocalTasksModal";
+import Footer from "./components/Footer";
 
 const getListId = (task) => {
   if (task.important === true && task.urgent === true) return "IU";
@@ -415,10 +416,11 @@ const App = () => {
           onSkipMerge={skipMergeTasks}
         />
       )}
-      <div className="bg-gray-100 h-screen w-screen m-0 p-6 overflow-hidden">
+      <div className="bg-gray-100 h-screen w-screen m-0 p-6 pb-7 overflow-hidden">
         <DragDropContext onDragEnd={onDragEnd}>
           <ResizableSplitPane left={leftPanel} right={rightPanel} />
         </DragDropContext>
+        <Footer />
       </div>
     </>
   );
