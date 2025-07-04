@@ -131,7 +131,7 @@ MIT License © 2025 Melody Yu
 
 > 一個以 **艾森豪矩陣（Eisenhower Matrix）** 為基礎的任務管理工具
 
-![應用程式畫面截圖](./screenshots/overview.png)
+![應用程式畫面截圖](./src/assets/overview_cn.png)
 
 ## 📌 概覽
 
@@ -175,15 +175,15 @@ MIT License © 2025 Melody Yu
 
 ### 🔲 主畫面
 
-![主畫面](./src/assets/main.png)
+![主畫面](./src/assets/main_cn.png)
 
 ### ✏️ 任務編輯畫面
 
-![任務編輯](./src/assets/taskEditing.png)
+![任務編輯](./src/assets/taskEditing_cn.png)
 
 ### 🔄 登入後合併提示
 
-![合併提示彈窗](./src/assets/mergeWarning.png)
+![合併提示彈窗](./src/assets/mergeWarning_cn.png)
 
 ## ⚙️ 開發指南
 
