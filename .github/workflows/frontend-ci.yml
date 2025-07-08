@@ -47,4 +47,23 @@ jobs:
                   "text":"🚨 CI Failed!\nRepo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nAuthor: ${{ github.actor }}\n👉 https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                 }
               ]
-            }' 
+            }'
+  notify-success:
+    needs: lint-and-build
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    steps:
+      - name: Notify Success
+        run: |
+          curl -X POST https://api.line.me/v2/bot/message/push \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.LINE_ACCESS_TOKEN }}" \
+          -d '{
+            "to": "'"${{ secrets.LINE_USER_ID }}"'",
+            "messages":[
+              {
+                "type":"text",
+                "text":"✅ CI Passed! Everything looks good. 🎉"
+              }
+            ]
+          }'
