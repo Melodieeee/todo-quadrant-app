@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
-import { FiSettings, FiGlobe } from "react-icons/fi";
-import { FcGoogle } from "react-icons/fc";
-import { useTranslation } from "react-i18next";
+import React, { useState, useRef } from 'react';
+import { FiSettings, FiGlobe } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
+import { useTranslation } from 'react-i18next';
 
 const SettingsDropdown = ({ language, setLanguage, user, onLogin, onLogout }) => {
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ const SettingsDropdown = ({ language, setLanguage, user, onLogin, onLogout }) =>
     >
       <button
         className="no-expand text-gray-700 hover:text-orange-400 transition-colors duration-200"
-        title={t("settings")}
+        title={t('settings')}
       >
         <FiSettings size={15} />
       </button>
@@ -34,18 +34,14 @@ const SettingsDropdown = ({ language, setLanguage, user, onLogin, onLogout }) =>
             {user ? (
               <>
                 <div className="block mb-1 font-medium truncate flex items-center gap-1">
-                  <img
-                    src={user.picture}
-                    alt={user.name}
-                    className="w-5 h-5 rounded-full"
-                  />
+                  <img src={user.picture} alt={user.name} className="w-5 h-5 rounded-full" />
                   {user.name}
                 </div>
                 <button
                   onClick={onLogout}
                   className="text-left text-sm hover:text-orange-400 transition-colors duration-200"
                 >
-                  {t("logout")}
+                  {t('logout')}
                 </button>
               </>
             ) : (
@@ -54,7 +50,7 @@ const SettingsDropdown = ({ language, setLanguage, user, onLogin, onLogout }) =>
                 className="text-sm hover:text-orange-400 transition-colors duration-200 flex items-center gap-1"
               >
                 <FcGoogle />
-                {t("loginWithGoogle")}
+                {t('loginWithGoogle')}
               </button>
             )}
           </div>
@@ -62,7 +58,7 @@ const SettingsDropdown = ({ language, setLanguage, user, onLogin, onLogout }) =>
           {/* 語言選擇器 */}
           <label className="block font-medium mb-1 flex items-center gap-1">
             <FiGlobe />
-            {t("language")}
+            {t('language')}
           </label>
           <select
             value={language}

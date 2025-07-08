@@ -12,23 +12,23 @@ This web app helps you manage tasks using the **Eisenhower Matrix** — a 2x2 qu
 
 It helps you:
 
-- Focus on what truly matters  
-- Reduce time wasted on distractions  
+- Focus on what truly matters
+- Reduce time wasted on distractions
 - Plan long-term by separating **important** from **urgent**
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React, Vite, Tailwind CSS, React DnD, i18next  
-- **Backend**: Java + Spring Boot ([View on GitHub](https://github.com/Melodieeee/todo-quadrant-app-back))  
-- **Authentication**: Google OAuth2  
-- **Database**: MongoDB Atlas  
-- **Deployment**:  
-  - Frontend: [Vercel](https://vercel.com)  
+- **Frontend**: React, Vite, Tailwind CSS, React DnD, i18next
+- **Backend**: Java + Spring Boot ([View on GitHub](https://github.com/Melodieeee/todo-quadrant-app-back))
+- **Authentication**: Google OAuth2
+- **Database**: MongoDB Atlas
+- **Deployment**:
+  - Frontend: [Vercel](https://vercel.com)
   - Backend: [Render](https://render.com)
 
 ## 🔐 Usage
 
-- You can use the app **without logging in** — tasks will be stored locally and lost on refresh  
+- You can use the app **without logging in** — tasks will be stored locally and lost on refresh
 - **Log in with Google** to save tasks to the cloud
 
 ## 🧩 Features
@@ -80,9 +80,9 @@ VITE_BACKEND_URL=http://localhost:8080
 ### Vite Proxy Setup (`vite.config.js`)
 
 ```js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -100,30 +100,29 @@ export default defineConfig({
       },
     },
   },
-})
+});
 ```
 
 ## 🗺️ Roadmap
 
 ### ✅ Completed
 
-- [x] Drag and drop tasks into quadrants  
-- [x] Google OAuth2 login  
-- [x] Bilingual language switch (i18n)  
-- [x] Filter for completed / expired tasks  
+- [x] Drag and drop tasks into quadrants
+- [x] Google OAuth2 login
+- [x] Bilingual language switch (i18n)
+- [x] Filter for completed / expired tasks
 - [x] Task sorting (by creation date / due date)
 
 ### 🚧 In Progress / Planned
 
-- [ ] Task search and filtering  
-- [ ] Tag support for categorization  
-- [ ] Dark mode & theme customization  
+- [ ] Task search and filtering
+- [ ] Tag support for categorization
+- [ ] Dark mode & theme customization
 - [ ] Responsive layout for mobile and tablet
 
 ## 📬 License
 
 MIT License © 2025 Melody Yu
-
 
 ---
 
@@ -139,23 +138,23 @@ MIT License © 2025 Melody Yu
 
 ### ✅ 為什麼使用四象限？
 
-- 專注在真正重要的事  
-- 減少時間浪費  
+- 專注在真正重要的事
+- 減少時間浪費
 - 清楚區分長遠規劃與即時反應
 
 ## 🛠️ 技術堆疊
 
-- **前端**：React、Vite、Tailwind CSS、React DnD、i18next  
-- **後端**：Java + Spring Boot ([GitHub 連結](https://github.com/Melodieeee/todo-quadrant-app-back))  
-- **登入系統**：Google OAuth2  
-- **資料庫**：MongoDB Atlas  
+- **前端**：React、Vite、Tailwind CSS、React DnD、i18next
+- **後端**：Java + Spring Boot ([GitHub 連結](https://github.com/Melodieeee/todo-quadrant-app-back))
+- **登入系統**：Google OAuth2
+- **資料庫**：MongoDB Atlas
 - **部署平台**：
   - 前端：[Vercel](https://vercel.com)
   - 後端：[Render](https://render.com)
 
 ## 🔐 使用方式
 
-- **不登入**：任務將暫存於本機，重新整理即會消失  
+- **不登入**：任務將暫存於本機，重新整理即會消失
 - **登入 Google 帳號**：可將任務儲存至雲端，跨裝置同步
 
 ## 🧩 功能特色
@@ -205,9 +204,9 @@ VITE_BACKEND_URL=http://localhost:8080
 ### Vite 代理設定 (`vite.config.js`)
 
 ```js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -225,24 +224,24 @@ export default defineConfig({
       },
     },
   },
-})
+});
 ```
 
 ## 🗺️ 開發藍圖（Roadmap）
 
 ### ✅ 已完成功能
 
-- [x] 任務可在象限間拖拉排序  
-- [x] Google OAuth2 登入  
-- [x] 支援中英雙語切換  
-- [x] 任務完成 / 過期狀態篩選  
+- [x] 任務可在象限間拖拉排序
+- [x] Google OAuth2 登入
+- [x] 支援中英雙語切換
+- [x] 任務完成 / 過期狀態篩選
 - [x] 任務排序（建立時間 / 到期日）
 
 ### 🚧 計畫開發中功能
 
-- [ ] 任務搜尋與篩選功能  
-- [ ] 支援任務標籤分類  
-- [ ] 深色模式與主題自定義  
+- [ ] 任務搜尋與篩選功能
+- [ ] 支援任務標籤分類
+- [ ] 深色模式與主題自定義
 - [ ] 手機與平板裝置的 RWD 響應式排版
 
 ## 📬 License

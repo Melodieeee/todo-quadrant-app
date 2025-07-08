@@ -1,10 +1,8 @@
-import React from "react";
-
 const Footer = () => {
   return (
     <footer className="text-gray-500 text-sm text-center pt-1">
       <p>
-        MIT License © 2025 Melody Yu ·{" "}
+        MIT License © 2025 Melody Yu ·{' '}
         <a
           href="https://github.com/Melodieeee/todo-quadrant-app.git"
           target="_blank"

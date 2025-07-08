@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { Draggable } from "@hello-pangea/dnd";
-import { Pencil, Trash2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
-import TooltipToggle from "./TooltipToggle";
-import { useTranslation } from "react-i18next";
+import { useState } from 'react';
+import { Draggable } from '@hello-pangea/dnd';
+import { Pencil, Trash2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+import TooltipToggle from './TooltipToggle';
+import { useTranslation } from 'react-i18next';
 
 // 安全解析日期
 const safeParseDate = (input) => {
@@ -14,9 +14,9 @@ const safeParseDate = (input) => {
 };
 
 const toLocalInputValue = (dateString) => {
-  if (!dateString) return "";
+  if (!dateString) return '';
   const date = new Date(dateString);
-  if (isNaN(date)) return "";
+  if (isNaN(date)) return '';
   const tzOffset = date.getTimezoneOffset() * 60000;
   const localDate = new Date(date.getTime() - tzOffset);
   return localDate.toISOString().slice(0, 16);
@@ -30,9 +30,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   // const [dueDateState, setDueDateState] = useState(
   //   task.dueDate ? safeParseDate(task.dueDate)?.toISOString().slice(0, 16) : ""
   // );
-  const [dueDateState, setDueDateState] = useState(
-    toLocalInputValue(task.dueDate)
-  );
+  const [dueDateState, setDueDateState] = useState(toLocalInputValue(task.dueDate));
 
   const handleSave = () => {
     const utcDate = dueDateState ? new Date(dueDateState).toISOString() : null;
@@ -61,18 +59,16 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
             {task.title}
           </div>
         ) : (
-          <motion.div
+          <Motion.div
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             className={`no-expand p-3 mb-2 rounded bg-white shadow-lg ${
-              task.completed ? "opacity-50" : ""
+              task.completed ? 'opacity-50' : ''
             }`}
             onDoubleClick={(e) => {
               const tag = e.target.tagName.toLowerCase();
-              if (
-                !["input", "textarea", "button", "svg", "path"].includes(tag)
-              ) {
+              if (!['input', 'textarea', 'button', 'svg', 'path'].includes(tag)) {
                 setEditing(true);
                 e.stopPropagation();
               }
@@ -81,7 +77,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
           >
             <AnimatePresence mode="wait">
               {editing ? (
-                <motion.div
+                <Motion.div
                   key="edit"
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -89,38 +85,28 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                   transition={{ duration: 0.2 }}
                   onDoubleClick={(e) => {
                     const tag = e.target.tagName.toLowerCase();
-                    if (
-                      !["input", "textarea", "button", "svg", "path"].includes(
-                        tag
-                      )
-                    ) {
+                    if (!['input', 'textarea', 'button', 'svg', 'path'].includes(tag)) {
                       handleSave();
                       e.stopPropagation();
                     }
                   }}
                 >
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("title")}
-                  </label>
+                  <label className="block text-sm font-semibold mb-1">{t('title')}</label>
                   <input
                     name="taskTitle"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
-                    placeholder={t("enterTitle")}
+                    placeholder={t('enterTitle')}
                   />
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("description")}
-                  </label>
+                  <label className="block text-sm font-semibold mb-1">{t('description')}</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full mb-2 border rounded px-2 py-1"
-                    placeholder={t("enterDescription")}
+                    placeholder={t('enterDescription')}
                   />
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("dueTime")}
-                  </label>
+                  <label className="block text-sm font-semibold mb-1">{t('dueTime')}</label>
                   <input
                     name="dueDate"
                     type="datetime-local"
@@ -129,26 +115,26 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     className="w-full mb-2 border rounded px-2 py-1"
                   />
                   <div className="flex justify-between mt-2">
-                    <motion.button
+                    <Motion.button
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.05 }}
                       onClick={handleSave}
                       className="bg-green-400 text-white px-3 py-1 rounded"
                     >
-                      {t("save")}
-                    </motion.button>
-                    <motion.button
+                      {t('save')}
+                    </Motion.button>
+                    <Motion.button
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.05 }}
                       onClick={() => setEditing(false)}
                       className="bg-gray-300 text-black px-3 py-1 rounded"
                     >
-                      {t("cancel")}
-                    </motion.button>
+                      {t('cancel')}
+                    </Motion.button>
                   </div>
-                </motion.div>
+                </Motion.div>
               ) : (
-                <motion.div
+                <Motion.div
                   key="view"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -157,9 +143,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                 >
                   <div className="flex justify-between items-center">
                     <h4
-                      className={`font-semibold text-base ${
-                        task.completed ? "line-through" : ""
-                      }`}
+                      className={`font-semibold text-base ${task.completed ? 'line-through' : ''}`}
                     >
                       {task.title}
                     </h4>
@@ -167,16 +151,14 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                       name="taskCompleted"
                       type="checkbox"
                       checked={task.completed}
-                      onChange={(e) =>
-                        updateTask(task.id, { completed: e.target.checked })
-                      }
+                      onChange={(e) => updateTask(task.id, { completed: e.target.checked })}
                     />
                   </div>
 
                   {task.description && (
                     <div
                       className={`text-sm text-gray-700 mt-1 ${
-                        task.completed ? "line-through" : ""
+                        task.completed ? 'line-through' : ''
                       }`}
                     >
                       {task.description}
@@ -186,18 +168,16 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                   {createdAt && (
                     <div
                       className={`text-xs text-gray-500 mt-1 ${
-                        task.completed ? "line-through" : ""
+                        task.completed ? 'line-through' : ''
                       }`}
                     >
-                      <span>{t("join")}：</span>
+                      <span>{t('join')}：</span>
                       <TooltipToggle
                         defaultValue={formatDistanceToNow(createdAt, {
                           addSuffix: true,
                         })}
                         tooltip={createdAt.toLocaleString()}
-                        className={
-                          task.completed ? "line-through text-gray-500" : ""
-                        }
+                        className={task.completed ? 'line-through text-gray-500' : ''}
                       />
                     </div>
                   )}
@@ -205,48 +185,40 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                   {dueDate && (
                     <div
                       className={`text-xs text-gray-500 mt-1 ${
-                        task.completed ? "line-through" : ""
+                        task.completed ? 'line-through' : ''
                       }`}
                     >
-                      <span>{t("due")}：</span>
+                      <span>{t('due')}：</span>
                       <TooltipToggle
                         defaultValue={formatDistanceToNow(dueDate, {
                           addSuffix: true,
                         })}
                         tooltip={dueDate.toLocaleString()}
-                        className={
-                          task.completed ? "line-through text-gray-500" : ""
-                        }
+                        className={task.completed ? 'line-through text-gray-500' : ''}
                       />
                     </div>
                   )}
 
                   <div className="flex justify-end gap-2 mt-2">
-                    <motion.button
+                    <Motion.button
                       onClick={() => setEditing(true)}
                       whileHover={{ scale: 1.2 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Pencil
-                        size={18}
-                        className="text-teal-400 hover:text-blue-500"
-                      />
-                    </motion.button>
-                    <motion.button
+                      <Pencil size={18} className="text-teal-400 hover:text-blue-500" />
+                    </Motion.button>
+                    <Motion.button
                       onClick={() => deleteTask(task.id)}
                       whileHover={{ scale: 1.2 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Trash2
-                        size={18}
-                        className="text-pink-500 hover:text-pink-700"
-                      />
-                    </motion.button>
+                      <Trash2 size={18} className="text-pink-500 hover:text-pink-700" />
+                    </Motion.button>
                   </div>
-                </motion.div>
+                </Motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </Motion.div>
         )
       }
     </Draggable>

@@ -4,6 +4,8 @@ node_modules/
 # Build
 dist/
 dist-ssr/
+build/
+coverage/
 
 # Logs
 *.log
@@ -17,8 +19,16 @@ pnpm-debug.log*
 
 # IDE/OS
 .DS_Store
+Thumbs.db
 .vscode/
 .idea/
+*.swp
 
-# Optional: 開發用 proxy 設定
+# Optional: proxy settings for local development 
 vite.config.js
+
+# ESLint / Prettier cache
+.eslintcache
+
+# Vite cache
+.vite/

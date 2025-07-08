@@ -1,23 +1,23 @@
-import React, { useState, useRef, useEffect } from "react";
-import Task from "./components/Task";
-import Quadrant from "./components/Quadrant";
-import { v4 as uuidv4 } from "uuid";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
-import ResizableSplitPane from "./components/ResizableSplitPane";
-import QuadrantGrid from "./components/QuadrantGrid";
-import SettingsDropdown from "./components/SettingsDropdown";
-import { FiPlusCircle } from "react-icons/fi";
-import { useTranslation } from "react-i18next";
-import LocalTaskWarningModal from "./components/LocalTaskWarningModal";
-import MergeLocalTasksModal from "./components/MergeLocalTasksModal";
-import Footer from "./components/Footer";
+import React, { useState, useRef, useEffect } from 'react';
+import Task from './components/Task';
+import Quadrant from './components/Quadrant';
+import { v4 as uuidv4 } from 'uuid';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
+import ResizableSplitPane from './components/ResizableSplitPane';
+import QuadrantGrid from './components/QuadrantGrid';
+import SettingsDropdown from './components/SettingsDropdown';
+import { FiPlusCircle } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
+import LocalTaskWarningModal from './components/LocalTaskWarningModal';
+import MergeLocalTasksModal from './components/MergeLocalTasksModal';
+import Footer from './components/Footer';
 
 const getListId = (task) => {
-  if (task.important === true && task.urgent === true) return "IU";
-  if (task.important === true && task.urgent === false) return "IN";
-  if (task.important === false && task.urgent === true) return "NU";
-  if (task.important === false && task.urgent === false) return "NN";
-  return "inbox";
+  if (task.important === true && task.urgent === true) return 'IU';
+  if (task.important === true && task.urgent === false) return 'IN';
+  if (task.important === false && task.urgent === true) return 'NU';
+  if (task.important === false && task.urgent === false) return 'NN';
+  return 'inbox';
 };
 
 const toSerializableTask = (task) => ({
@@ -33,7 +33,10 @@ const App = () => {
   const [showMergeModal, setShowMergeModal] = useState(false);
 
   const [sortOptions, _setSortOptions] = useState({
-    IN: null, IU: null, NU: null, NN: null,
+    IN: null,
+    IU: null,
+    NU: null,
+    NN: null,
   });
   const sortOptionsRef = useRef(sortOptions);
   const setSortOptions = (newOptions) => {
@@ -44,7 +47,7 @@ const App = () => {
   const hasShownLocalWarning = useRef(false);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("language");
+    const savedLang = localStorage.getItem('language');
     if (savedLang) {
       i18n.changeLanguage(savedLang);
     }
@@ -52,13 +55,13 @@ const App = () => {
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
-    localStorage.setItem("language", lng);
+    localStorage.setItem('language', lng);
   };
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/info`, { credentials: "include" })
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/info`, { credentials: 'include' })
       .then((res) => {
-        if (!res.ok) throw new Error("Not logged in");
+        if (!res.ok) throw new Error('Not logged in');
         return res.json();
       })
       .then((data) => setUser(data))
@@ -68,34 +71,36 @@ const App = () => {
   useEffect(() => {
     if (!user) return;
 
-    const savedLocal = localStorage.getItem("localTasks");
+    const savedLocal = localStorage.getItem('localTasks');
     const parsed = savedLocal ? JSON.parse(savedLocal) : [];
-  
+
     if (parsed.length > 0) {
-      console.log("Local tasks detected, prompting merge.");
+      console.log('Local tasks detected, prompting merge.');
       setTasks(parsed);
       setShowMergeModal(true);
     } else {
       fetchServerTasks();
     }
   }, [user]);
-  
+
   const fetchServerTasks = () => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/user`, { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setTasks(data))
-      .catch(err => console.error("Fetch failed:", err));
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/user`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => setTasks(data))
+      .catch((err) => console.error('Fetch failed:', err));
   };
 
   const confirmMergeTasks = async () => {
-    localStorage.removeItem("localTasks");
+    localStorage.removeItem('localTasks');
     let remoteTasks = [];
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/user`, { credentials: "include" });
-      if (!res.ok) throw new Error("Fetch failed");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/user`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Fetch failed');
       remoteTasks = await res.json();
     } catch (err) {
-      console.error("Failed to fetch remote tasks:", err);
+      console.error('Failed to fetch remote tasks:', err);
       return;
     }
 
@@ -115,13 +120,13 @@ const App = () => {
     for (const task of tasksToPost) {
       try {
         await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(toSerializableTask(task)),
         });
       } catch (err) {
-        console.error("Post task failed:", err);
+        console.error('Post task failed:', err);
       }
     }
 
@@ -130,18 +135,18 @@ const App = () => {
   };
 
   const skipMergeTasks = () => {
-    localStorage.removeItem("localTasks");
+    localStorage.removeItem('localTasks');
     fetchServerTasks();
     setShowMergeModal(false);
   };
 
   const addTask = async () => {
-    const inboxTasks = tasks.filter((t) => getListId(t) === "inbox");
+    const inboxTasks = tasks.filter((t) => getListId(t) === 'inbox');
     const tempId = uuidv4();
     const baseTask = {
       id: tempId,
-      title: t("newTask"),
-      description: "",
+      title: t('newTask'),
+      description: '',
       important: null,
       urgent: null,
       dueDate: null,
@@ -154,26 +159,26 @@ const App = () => {
       setShowLocalWarning(true);
       hasShownLocalWarning.current = true;
     }
-    
+
     if (user) {
       try {
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(baseTask),
         });
-        if (!res.ok) throw new Error("Failed to create task");
+        if (!res.ok) throw new Error('Failed to create task');
         const savedTask = await res.json();
         setTasks((prev) => [...prev, savedTask]);
         return;
       } catch (err) {
-        console.error("Backend task creation failed:", err);
+        console.error('Backend task creation failed:', err);
       }
     }
 
     setTasks((prev) => [...prev, baseTask]);
-    console.log("Local task created:", baseTask);
+    console.log('Local task created:', baseTask);
   };
 
   const updateTask = async (id, updatedFields) => {
@@ -185,11 +190,11 @@ const App = () => {
 
       if (user && updatedTask) {
         fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(toSerializableTask(updatedTask)),
-        }).catch((err) => console.error("Update task failed:", err));
+        }).catch((err) => console.error('Update task failed:', err));
       }
 
       return updatedList;
@@ -201,11 +206,11 @@ const App = () => {
     if (user) {
       try {
         await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/tasks/${id}`, {
-          method: "DELETE",
-          credentials: "include",
+          method: 'DELETE',
+          credentials: 'include',
         });
       } catch (err) {
-        console.error("Delete task failed:", err);
+        console.error('Delete task failed:', err);
       }
     }
   };
@@ -216,39 +221,39 @@ const App = () => {
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
-  
+
     const draggedTask = tasks.find((t) => t.id === draggableId);
     if (!draggedTask) return;
-  
+
     const destId = destination.droppableId;
     const sourceId = source.droppableId;
-  
+
     const movedToNewList = destId !== sourceId;
     let updatedTask = { ...draggedTask };
-  
+
     // 更新 important / urgent 屬性（如果換清單）
     if (movedToNewList) {
-      if (destId === "inbox") {
+      if (destId === 'inbox') {
         updatedTask.important = null;
         updatedTask.urgent = null;
       } else {
-        updatedTask.important = ["IU", "IN"].includes(destId);
-        updatedTask.urgent = ["IU", "NU"].includes(destId);
+        updatedTask.important = ['IU', 'IN'].includes(destId);
+        updatedTask.urgent = ['IU', 'NU'].includes(destId);
       }
     }
-  
+
     const otherTasks = tasks.filter((t) => getListId(t) !== sourceId && getListId(t) !== destId);
-  
+
     if (sourceId === destId) {
       // 在同一清單中拖曳：只需對這一清單重排
       const sameList = tasks
         .filter((t) => getListId(t) === sourceId)
         .filter((t) => t.id !== draggedTask.id);
       sameList.splice(destination.index, 0, updatedTask);
-  
+
       const reindexed = updateOrderIndices(sameList);
       setTasks([...otherTasks, ...reindexed]);
-  
+
       reindexed.forEach((task) => {
         updateTask(task.id, {
           orderIndex: task.orderIndex,
@@ -259,16 +264,15 @@ const App = () => {
       const sourceList = tasks
         .filter((t) => getListId(t) === sourceId)
         .filter((t) => t.id !== draggedTask.id);
-      const destList = tasks
-        .filter((t) => getListId(t) === destId);
-  
+      const destList = tasks.filter((t) => getListId(t) === destId);
+
       destList.splice(destination.index, 0, updatedTask);
-  
+
       const reindexedSource = updateOrderIndices(sourceList);
       const reindexedDest = updateOrderIndices(destList);
-  
+
       setTasks([...otherTasks, ...reindexedSource, ...reindexedDest]);
-  
+
       [...reindexedSource, ...reindexedDest].forEach((task) => {
         updateTask(task.id, {
           orderIndex: task.orderIndex,
@@ -278,28 +282,28 @@ const App = () => {
       });
     }
   };
-  
+
   const loginWithGoogle = () => {
-      localStorage.setItem("localTasks", JSON.stringify(tasks));
-      window.location.href = `${import.meta.env.VITE_BACKEND_URL}/oauth2/authorization/google`;
-    }
-  
+    localStorage.setItem('localTasks', JSON.stringify(tasks));
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/oauth2/authorization/google`;
+  };
+
   const handleLogout = () => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/logout`, {
-      method: "POST",
-      credentials: "include",
+      method: 'POST',
+      credentials: 'include',
     }).then(() => {
       setUser(null);
       window.location.reload();
-      console.log("Logged out successfully");
+      console.log('Logged out successfully');
     });
   };
 
   const quadrantMeta = {
-    IN: { title: t("IN"), hint: t("makePlan"), bgColor: "bg-blue-100" },
-    IU: { title: t("IU"), hint: t("prioritize"), bgColor: "bg-pink-100" },
-    NU: { title: t("NU"), hint: t("findOneDo"), bgColor: "bg-yellow-100" },
-    NN: { title: t("NN"), hint: t("doWhenFree"), bgColor: "bg-green-100" },
+    IN: { title: t('IN'), hint: t('makePlan'), bgColor: 'bg-blue-100' },
+    IU: { title: t('IU'), hint: t('prioritize'), bgColor: 'bg-pink-100' },
+    NU: { title: t('NU'), hint: t('findOneDo'), bgColor: 'bg-yellow-100' },
+    NN: { title: t('NN'), hint: t('doWhenFree'), bgColor: 'bg-green-100' },
   };
 
   const renderQuadrant = (id) => {
@@ -318,27 +322,32 @@ const App = () => {
           const quadrantTasks = tasks.filter((t) => getListId(t) === id);
           let sorted;
           switch (option) {
-            case "createdNewFirst":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            case 'createdNewFirst':
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+              );
               break;
-            case "createdOldFirst":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            case 'createdOldFirst':
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+              );
               break;
-            case "dueSoon":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(a.dueDate || Infinity) - new Date(b.dueDate || Infinity));
+            case 'dueSoon':
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(a.dueDate || Infinity) - new Date(b.dueDate || Infinity)
+              );
               break;
-            case "dueLater":
-              sorted = [...quadrantTasks].sort((a, b) => new Date(b.dueDate || 0) - new Date(a.dueDate || 0));
+            case 'dueLater':
+              sorted = [...quadrantTasks].sort(
+                (a, b) => new Date(b.dueDate || 0) - new Date(a.dueDate || 0)
+              );
               break;
             default:
               sorted = quadrantTasks;
               break;
           }
           const updated = updateOrderIndices(sorted);
-          setTasks((prev) => [
-            ...prev.filter((t) => getListId(t) !== id),
-            ...updated,
-          ]);
+          setTasks((prev) => [...prev.filter((t) => getListId(t) !== id), ...updated]);
           updated.forEach((task) =>
             updateTask(task.id, {
               orderIndex: task.orderIndex,
@@ -357,10 +366,10 @@ const App = () => {
           ref={provided.innerRef}
           {...provided.droppableProps}
           className="bg-white rounded-lg p-4 shadow overflow-y-auto"
-          style={{ height: "100%" }}
+          style={{ height: '100%' }}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">{t("todoList")}</h2>
+            <h2 className="text-2xl font-bold">{t('todoList')}</h2>
             <div className="flex items-center space-x-3">
               <SettingsDropdown
                 language={i18n.language}
@@ -370,7 +379,7 @@ const App = () => {
                 onLogout={handleLogout}
               />
               <button
-                title={t("addTask")}
+                title={t('addTask')}
                 onClick={addTask}
                 className="no-expand p-1 rounded text-gray-700 hover:text-orange-400 transition-colors duration-200"
               >
@@ -379,7 +388,7 @@ const App = () => {
             </div>
           </div>
           {tasks
-            .filter((t) => getListId(t) === "inbox")
+            .filter((t) => getListId(t) === 'inbox')
             .sort((a, b) => a.orderIndex - b.orderIndex)
             .map((task, index) => (
               <Task
@@ -411,10 +420,7 @@ const App = () => {
         />
       )}
       {showMergeModal && (
-        <MergeLocalTasksModal
-          onConfirmMerge={confirmMergeTasks}
-          onSkipMerge={skipMergeTasks}
-        />
+        <MergeLocalTasksModal onConfirmMerge={confirmMergeTasks} onSkipMerge={skipMergeTasks} />
       )}
       <div className="bg-gray-100 h-screen w-screen m-0 p-6 pb-7 overflow-hidden">
         <DragDropContext onDragEnd={onDragEnd}>

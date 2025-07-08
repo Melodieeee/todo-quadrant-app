@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const MIN_WIDTH = 150;
 const MAX_WIDTH = window.innerWidth - 150;
@@ -15,108 +15,109 @@ const ResizableSplitPane = ({ left, right }) => {
     dragging.current = true;
   };
 
-  const onMouseMove = (e) => {
-    if (!dragging.current) return;
-
-    const newWidth = e.clientX;
-    setLeftWidth(newWidth);
-
-    if (newWidth < MIN_WIDTH) {
-      setIsCollapsed("left");
-      showOverlay(t("todoListCollapsed"));
-    } else if ( newWidth > MAX_WIDTH) {
-      setIsCollapsed("right");
-      showOverlay(t("quadrantCollapsed"));
-    } else {
-      setIsCollapsed(false);
-    }
-    
-  };
-
-  const onMouseUp = () => {
-    dragging.current = false;
-  };
-
-  const showOverlay = (msg) => {
+  const showOverlay = useCallback((msg) => {
     setShowTip(msg);
     setTimeout(() => setShowTip(false), 1200);
-  };
+  }, []);
+
+  const onMouseMove = useCallback(
+    (e) => {
+      if (!dragging.current) return;
+
+      const newWidth = e.clientX;
+      setLeftWidth(newWidth);
+
+      if (newWidth < MIN_WIDTH) {
+        setIsCollapsed('left');
+        showOverlay(t('todoListCollapsed'));
+      } else if (newWidth > MAX_WIDTH) {
+        setIsCollapsed('right');
+        showOverlay(t('quadrantCollapsed'));
+      } else {
+        setIsCollapsed(false);
+      }
+    },
+    [showOverlay, t]
+  );
+
+  const onMouseUp = useCallback(() => {
+    dragging.current = false;
+  }, []);
 
   const handleDoubleClickLeft = (e) => {
-    if (e.target.closest(".no-expand")) {
-      return;
-    }
-  
+    if (e.target.closest('.no-expand')) return;
+
     const screenWidth = window.innerWidth;
-  
+
     if (leftWidth >= screenWidth - 30) {
       setLeftWidth(300);
       setIsCollapsed(false);
     } else {
       setLeftWidth(screenWidth);
-      setIsCollapsed("right");
+      setIsCollapsed('right');
     }
   };
-  
 
   useEffect(() => {
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
     return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
     };
-  }, []);
+  }, [onMouseMove, onMouseUp]);
 
   return (
-    <div style={{ display: "flex", height: "100%", width: "100%" }}>
+    <div style={{ display: 'flex', height: '100%', width: '100%' }}>
       {/* 左側 */}
       <div
         onDoubleClick={handleDoubleClickLeft}
         style={{
           width: leftWidth,
-          overflow: "hidden",
+          overflow: 'hidden',
         }}
       >
         {left}
       </div>
 
-      {/* 分隔條或短線 */}
+      {/* 分隔條 */}
       <div
-        title= {isCollapsed === "left"
-          ? t("todoListDragToExpand")
-          : isCollapsed === "right"
-          ? t("quadrantDragToExpand")
-          : t("dragToResize")} 
+        title={
+          isCollapsed === 'left'
+            ? t('todoListDragToExpand')
+            : isCollapsed === 'right'
+              ? t('quadrantDragToExpand')
+              : t('dragToResize')
+        }
         onMouseDown={onMouseDown}
         style={{
-          width:  "6px",
-          height: isCollapsed ? "20%" : "100%",
-          cursor:  "col-resize",
-          backgroundColor: isCollapsed ? "#bbb" : "transparent",
+          width: '6px',
+          height: isCollapsed ? '20%' : '100%',
+          cursor: 'col-resize',
+          backgroundColor: isCollapsed ? '#bbb' : 'transparent',
           zIndex: 10,
-          margin: isCollapsed ? "auto 0" : "0",  // 垂直置中
-          alignSelf: isCollapsed ? "center" : "stretch",  // 支援垂直置中
-          borderRadius: "3px",
+          margin: isCollapsed ? 'auto 0' : '0',
+          alignSelf: isCollapsed ? 'center' : 'stretch',
+          borderRadius: '3px',
         }}
       />
 
       {/* 右側 */}
-      <div style={{ flex: 1, overflow: "hidden" }}>{right}</div>
+      <div style={{ flex: 1, overflow: 'hidden' }}>{right}</div>
 
       {/* Overlay 提示 */}
       {showTip && (
         <div
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: 20,
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "#333",
-            color: "#fff",
-            padding: "6px 12px",
-            borderRadius: "6px",
-            fontSize: "14px",
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#333',
+            color: '#fff',
+            padding: '6px 12px',
+            borderRadius: '6px',
+            fontSize: '14px',
             opacity: 0.9,
             zIndex: 1000,
           }}

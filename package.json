@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -36,6 +38,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "postcss": "^8.5.4",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4.1.8",
     "vite": "^6.3.5"
   }
