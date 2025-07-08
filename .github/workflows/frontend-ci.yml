@@ -29,3 +29,22 @@ jobs:
 
       - name: Build app
         run: npm run build
+  notify-failure:
+    needs: lint-and-build
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify failure via LINE
+        run: |
+          curl -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}" \
+            -d '{
+              "to": "'"${{ secrets.LINE_USER_ID }}"'",
+              "messages":[
+                {
+                  "type":"text",
+                  "text":"🚨 CI Failed!\nRepo: ${{ github.repository }}\nCommit: ${{ github.sha }}\nAuthor: ${{ github.actor }}\n👉 https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                }
+              ]
+            }' 
