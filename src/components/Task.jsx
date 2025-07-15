@@ -31,8 +31,15 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
   //   task.dueDate ? safeParseDate(task.dueDate)?.toISOString().slice(0, 16) : ""
   // );
   const [dueDateState, setDueDateState] = useState(toLocalInputValue(task.dueDate));
+  const [titleError, setTitleError] = useState(null);
 
   const handleSave = () => {
+    if (!title.trim()) {
+      setTitleError(t('titleCannotBeEmpty') || 'Title cannot be empty');
+      return;
+    }
+    setTitleError(null); // clear previous error
+
     const utcDate = dueDateState ? new Date(dueDateState).toISOString() : null;
 
     updateTask(task.id, {
@@ -99,6 +106,7 @@ const Task = ({ task, index, updateTask, deleteTask }) => {
                     className="w-full mb-2 border rounded px-2 py-1"
                     placeholder={t('enterTitle')}
                   />
+                  {titleError && <div className="text-red-500 text-sm mb-2">{titleError}</div>}
                   <label className="block text-sm font-semibold mb-1">{t('description')}</label>
                   <textarea
                     value={description}

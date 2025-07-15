@@ -90,6 +90,18 @@ const QuadrantGrid = ({ renderQuadrant }) => {
   const [verticalCollapsed, setVerticalCollapsed] = useState(null);
   const [topCollapsed, setTopCollapsed] = useState(null);
   const [bottomCollapsed, setBottomCollapsed] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const [s1, setS1] = useState([0.25, 0.75]); // IU + rest
+  const [s2, setS2] = useState([0.33, 0.67]); // IN + rest
+  const [s3, setS3] = useState([0.5, 0.5]); // NU + NN
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleDoubleClick = (id) => {
     setExpandedQuadrant((prev) => (prev === id ? null : id));
@@ -118,6 +130,41 @@ const QuadrantGrid = ({ renderQuadrant }) => {
       </div>
     );
   }
+
+  // ✅ 手機模式下（單欄排列）
+if (isMobile) {
+  return (
+    <Split
+      direction="horizontal"
+      sizes={s1}
+      setSizes={setS1}
+      collapsedIndex={null}
+      setCollapsedIndex={() => {}}
+    >
+      {getQuadrantComponent('IU', renderQuadrant('IU'))}
+      <Split
+        direction="horizontal"
+        sizes={s2}
+        setSizes={setS2}
+        collapsedIndex={null}
+        setCollapsedIndex={() => {}}
+      >
+        {getQuadrantComponent('IN', renderQuadrant('IN'))}
+        <Split
+          direction="horizontal"
+          sizes={s3}
+          setSizes={setS3}
+          collapsedIndex={null}
+          setCollapsedIndex={() => {}}
+        >
+          {getQuadrantComponent('NU', renderQuadrant('NU'))}
+          {getQuadrantComponent('NN', renderQuadrant('NN'))}
+        </Split>
+      </Split>
+    </Split>
+  );
+}
+
 
   return (
     <Split

@@ -26,6 +26,27 @@ It helps you:
   - Frontend: [Vercel](https://vercel.com)
   - Backend: [Render](https://render.com)
 
+## 🧪 CI/CD
+This project uses **GitHub Actions** to automatically lint, format-check, and build the frontend, with LINE bot notifications for build results.
+The frontend is **automatically deployed via Vercel** on every push to the `main` branch, completing a full CI/CD workflow.
+
+### ✅ CI Steps:
+
+- Install dependencies (`npm ci`)
+- Lint with ESLint (`npm run lint`)
+- Format check with Prettier (`npm run format:check`)
+- Build app (`npm run build`)
+- Notify success/failure via LINE Bot
+- 🔁 **Vercel automatically deploys latest commit on `main`**
+
+📄 View the workflow config:
+[`frontend-ci.yml`](.github/workflows/frontend-ci.yml)
+
+> Remember to set these secrets in **GitHub → Settings → Secrets**:
+>
+> - `LINE_CHANNEL_ACCESS_TOKEN`
+> - `LINE_USER_ID`
+
 ## 🔐 Usage
 
 - You can use the app **without logging in** — tasks will be stored locally and lost on refresh
@@ -151,6 +172,28 @@ MIT License © 2025 Melody Yu
 - **部署平台**：
   - 前端：[Vercel](https://vercel.com)
   - 後端：[Render](https://render.com)
+
+## 🧪 CI/CD | 自動化建置流程
+
+本專案整合 **GitHub Actions** 進行前端程式的自動化建置與檢查，並使用 **LINE Bot 通知功能** 提醒開發者建置成功或失敗。
+前端則透過 **Vercel** 自動部署至最新版本，實現完整 CI/CD 流程。
+
+### ✅ 自動化流程內容：
+
+- 安裝依賴（`npm ci`）
+- Lint 檢查（`npm run lint`）
+- 格式檢查（`npm run format:check`）
+- 編譯建置（`npm run build`）
+- 成功或失敗後透過 LINE 通知開發者
+- 🔁 **每次 push 到 main 分支後，Vercel 自動部署前端**
+
+📄 前端 CI workflow 檔案請參考：
+[`frontend-ci.yml`](.github/workflows/frontend-ci.yml)
+
+> 你需要在 GitHub 專案的 **Settings → Secrets** 中設定下列機密值：
+>
+> - `LINE_CHANNEL_ACCESS_TOKEN`
+> - `LINE_USER_ID`
 
 ## 🔐 使用方式
 
