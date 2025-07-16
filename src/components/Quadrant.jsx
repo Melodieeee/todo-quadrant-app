@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 import Task from './Task';
 import Tooltip from './Tooltip';
@@ -25,40 +25,52 @@ const Quadrant = ({
   const [isFilterHovered, setIsFilterHovered] = useState(false);
   const sortTimeoutRef = useRef(null);
   const filterTimeoutRef = useRef(null);
+  const filterDropdownRef = useRef(null);
+  const sortDropdownRef = useRef(null);
+
+  const [alignFilterRight, setAlignFilterRight] = useState(true);
+  const [alignSortRight, setAlignSortRight] = useState(true);
+
+  useEffect(() => {
+    const adjustPosition = () => {
+      if (filterDropdownRef.current) {
+        const rect = filterDropdownRef.current.getBoundingClientRect();
+        setAlignFilterRight(rect.right <= window.innerWidth - 10);
+      }
+      if (sortDropdownRef.current) {
+        const rect = sortDropdownRef.current.getBoundingClientRect();
+        setAlignSortRight(rect.right <= window.innerWidth - 10);
+      }
+    };
+    if (isFilterHovered || isSortHovered) {
+      adjustPosition();
+    }
+  }, [isFilterHovered, isSortHovered]);
 
   const filterTasks = (taskList) => {
     let filtered = taskList;
-
-    if (filterStatus === 'completed') {
-      filtered = filtered.filter((t) => t.completed);
-    } else if (filterStatus === 'incomplete') {
-      filtered = filtered.filter((t) => !t.completed);
-    }
-
+    if (filterStatus === 'completed') filtered = filtered.filter((t) => t.completed);
+    else if (filterStatus === 'incomplete') filtered = filtered.filter((t) => !t.completed);
     const now = new Date();
-
-    if (filterDue === 'overdue') {
+    if (filterDue === 'overdue')
       filtered = filtered.filter((t) => t.dueDate && new Date(t.dueDate) < now);
-    } else if (filterDue === 'notOverdue') {
+    else if (filterDue === 'notOverdue')
       filtered = filtered.filter((t) => !t.dueDate || new Date(t.dueDate) >= now);
-    }
-
     return filtered;
   };
 
-  //const quadrantTasks = tasks.filter((t) => t.list === id);
-  const filteredTasks = filterTasks(quadrantTasks);
-
-  const sortedTasks = [...filteredTasks].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+  const sortedTasks = [...filterTasks(quadrantTasks)].sort(
+    (a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)
+  );
 
   return (
     <div className={`rounded-lg p-4 shadow ${bgColor} flex flex-col relative h-full`}>
       <div className="flex justify-between items-center mb-2 relative">
-        <Tooltip content={hint}>
+        <Tooltip content={hint} position="top">
           <h3 className="text-xl font-semibold">{title}</h3>
         </Tooltip>
         <div className="flex gap-2">
-          {/* Filter button */}
+          {/* Filter */}
           <div
             className="relative"
             onMouseEnter={() => {
@@ -66,9 +78,7 @@ const Quadrant = ({
               setIsFilterHovered(true);
             }}
             onMouseLeave={() => {
-              filterTimeoutRef.current = setTimeout(() => {
-                setIsFilterHovered(false);
-              }, 100);
+              filterTimeoutRef.current = setTimeout(() => setIsFilterHovered(false), 100);
             }}
           >
             <button
@@ -78,28 +88,27 @@ const Quadrant = ({
               <FiFilter />
             </button>
             {isFilterHovered && (
-              <div className="no-expand absolute right-0 z-20 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[8rem]">
+              <div
+                ref={filterDropdownRef}
+                className="no-expand absolute z-20 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[8rem]"
+                style={{ [alignFilterRight ? 'right' : 'left']: 0 }}
+              >
                 <div className="px-4 pt-2 pb-1 font-semibold">{t('completion')}</div>
                 {['all', 'completed', 'incomplete'].map((status) => (
                   <button
                     key={status}
                     onClick={() => setFilterStatus(status)}
-                    className={`block px-4 py-1 hover:bg-yellow-100 w-full text-left ${
-                      filterStatus === status ? 'bg-yellow-200' : ''
-                    }`}
+                    className={`block px-4 py-1 hover:bg-yellow-100 w-full text-left ${filterStatus === status ? 'bg-yellow-200' : ''}`}
                   >
                     {t(status)}
                   </button>
                 ))}
-
                 <div className="px-4 pt-2 pb-1 border-t font-semibold">{t('dueOrNot')}</div>
                 {['all', 'overdue', 'notOverdue'].map((due) => (
                   <button
                     key={due}
                     onClick={() => setFilterDue(due)}
-                    className={`block px-4 py-1 hover:bg-yellow-100 w-full text-left ${
-                      filterDue === due ? 'bg-yellow-200' : ''
-                    }`}
+                    className={`block px-4 py-1 hover:bg-yellow-100 w-full text-left ${filterDue === due ? 'bg-yellow-200' : ''}`}
                   >
                     {t(due)}
                   </button>
@@ -108,7 +117,7 @@ const Quadrant = ({
             )}
           </div>
 
-          {/* Sort button */}
+          {/* Sort */}
           <div
             className="relative"
             onMouseEnter={() => {
@@ -116,9 +125,7 @@ const Quadrant = ({
               setIsSortHovered(true);
             }}
             onMouseLeave={() => {
-              sortTimeoutRef.current = setTimeout(() => {
-                setIsSortHovered(false);
-              }, 100);
+              sortTimeoutRef.current = setTimeout(() => setIsSortHovered(false), 100);
             }}
           >
             <button
@@ -128,7 +135,11 @@ const Quadrant = ({
               <MdSort />
             </button>
             {isSortHovered && (
-              <div className="no-expand absolute right-0 z-20 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[10rem]">
+              <div
+                ref={sortDropdownRef}
+                className="no-expand absolute z-20 bg-[#fff7e6] text-[#5c3a1e] rounded shadow-md text-sm mt-1 min-w-[10rem]"
+                style={{ [alignSortRight ? 'right' : 'left']: 0 }}
+              >
                 <button
                   onClick={() => setSortOption('createdNewFirst')}
                   className="block px-4 py-2 hover:bg-yellow-100 w-full text-left"

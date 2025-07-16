@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Task from './components/Task';
 import Quadrant from './components/Quadrant';
 import { v4 as uuidv4 } from 'uuid';
 import { DragDropContext, Droppable } from '@hello-pangea/dnd';
-import ResizableSplitPane from './components/ResizableSplitPane';
+import ResizableSidePane from './components/ResizableSidePane';
 import QuadrantGrid from './components/QuadrantGrid';
 import SettingsDropdown from './components/SettingsDropdown';
 import { FiPlusCircle } from 'react-icons/fi';
@@ -412,7 +412,7 @@ const App = () => {
   );
 
   return (
-    <>
+    <div className="flex flex-col h-[100dvh] w-screen overflow-hidden">
       {showLocalWarning && (
         <LocalTaskWarningModal
           onClose={() => setShowLocalWarning(false)}
@@ -422,13 +422,13 @@ const App = () => {
       {showMergeModal && (
         <MergeLocalTasksModal onConfirmMerge={confirmMergeTasks} onSkipMerge={skipMergeTasks} />
       )}
-      <div className="bg-gray-100 h-screen w-screen m-0 p-6 pb-7 overflow-hidden">
+      <div className="bg-gray-100 flex-1 m-0 p-6 pb-7 overflow-hidden">
         <DragDropContext onDragEnd={onDragEnd}>
-          <ResizableSplitPane left={leftPanel} right={rightPanel} />
+          <ResizableSidePane left={leftPanel} right={rightPanel} />
         </DragDropContext>
         <Footer />
       </div>
-    </>
+    </div>
   );
 };
 

@@ -27,6 +27,7 @@ It helps you:
   - Backend: [Render](https://render.com)
 
 ## 🧪 CI/CD
+
 This project uses **GitHub Actions** to automatically lint, format-check, and build the frontend, with LINE bot notifications for build results.
 The frontend is **automatically deployed via Vercel** on every push to the `main` branch, completing a full CI/CD workflow.
 
